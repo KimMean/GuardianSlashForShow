@@ -22,7 +22,7 @@ public class GoogleMobileAdmobManager : MonoBehaviour
     /// <summary>
     /// 리워드 광고 ID
     /// </summary>
-    const string REWARD_ADS_UNIT_ID = "ca-app-pub-6690936278194276/3952341079";
+    const string REWARD_ADS_UNIT_ID = "private";
     
     // 전면 광고 테스트 ID (사용되지 않습니다.)
     const string Interstitial_ADS_TEST_UNIT_ID = "ca-app-pub-3940256099942544/1033173712";
