@@ -16,13 +16,13 @@ public class DataManager : MonoBehaviour
     }
 
     private const string UUIDKey = "UserUUID";
-    private static string UserUUID = null;
+    private static string userUUID = null;
 
     private const string GoogleKey = "Google";
-    private static string UserGoogleID = null;
+    private static string userGoogleID = null;
     
     private const string AccessTokenKey = "Token";
-    private static string AccessToken = null;
+    private static string accessToken = null;
 
     private void Awake()
     {
@@ -32,46 +32,48 @@ public class DataManager : MonoBehaviour
 
         if (PlayerPrefs.HasKey(UUIDKey))
         {
-            UserUUID = PlayerPrefs.GetString(UUIDKey);
+            userUUID = PlayerPrefs.GetString(UUIDKey);
             //Debug.Log(UserUUID);
         }
         if (PlayerPrefs.HasKey(GoogleKey))
         {
-            UserGoogleID = PlayerPrefs.GetString(GoogleKey);
+            userGoogleID = PlayerPrefs.GetString(GoogleKey);
         }
     }
 
 
-    /*
-     * This function is called during asynchronous socket communication.
-     * Works on thread pool
-     */
+    /// <summary>
+    /// UUID를 저장합니다.
+    /// </summary>
     public void SetUserUUID(string uuid)
     {
-        UserUUID = uuid;
+        userUUID = uuid;
 
         MainThreadDispatcher.Instance.Enqueue(() =>
         {
-            PlayerPrefs.SetString(UUIDKey, UserUUID);
+            PlayerPrefs.SetString(UUIDKey, userUUID);
             PlayerPrefs.Save();
         });
     }
 
     public string GetUserUUID()
     {
-        if(UserUUID != null) 
-            return UserUUID;
+        if(userUUID != null) 
+            return userUUID;
 
         return null;
     }
 
+    /// <summary>
+    /// 구글 아이디를 저장합니다.
+    /// </summary>
     public void SetUserGoogleID(string userId)
     {
-        UserGoogleID = userId;
+        userGoogleID = userId;
 
         MainThreadDispatcher.Instance.Enqueue(() =>
         {
-            PlayerPrefs.SetString(GoogleKey, UserGoogleID);
+            PlayerPrefs.SetString(GoogleKey, userGoogleID);
             PlayerPrefs.Save();
         });
             
@@ -79,25 +81,28 @@ public class DataManager : MonoBehaviour
 
     public string GetUserGoogleID()
     {
-        if( UserGoogleID != null )
-            return UserGoogleID;
+        if(userGoogleID != null )
+            return userGoogleID;
 
         return null;
     }
 
-    public void SetAccessToken(string accessToken)
+    /// <summary>
+    /// 액세스 토큰을 저장합니다.
+    /// </summary>
+    public void SetAccessToken(string token)
     {
-        AccessToken = accessToken;
+        accessToken = token;
 
         MainThreadDispatcher.Instance.Enqueue(() =>
         {
-            PlayerPrefs.SetString(AccessTokenKey, AccessToken);
+            PlayerPrefs.SetString(AccessTokenKey, accessToken);
             PlayerPrefs.Save();
         });
     }
 
     public string GetAccessToken()
     {
-        return AccessToken;
+        return accessToken;
     }
 }

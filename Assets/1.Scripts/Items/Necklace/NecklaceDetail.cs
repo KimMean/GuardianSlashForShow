@@ -9,8 +9,17 @@ public class NecklaceDetail
 {
 
     string Name;
+    /// <summary>
+    /// 기사회생 확률
+    /// </summary>
     int Twilight = 0;
+    /// <summary>
+    /// 막기 넉백 파워
+    /// </summary>
     int mVoid = 0;
+    /// <summary>
+    /// 블록 감속 확률
+    /// </summary>
     int Hell = 0;
     bool IsHave = false;
     Sprite NecklaceSprite = null;
@@ -34,6 +43,9 @@ public class NecklaceDetail
     public void SetNecklaceSprite(Sprite necklaceSprite) { NecklaceSprite = necklaceSprite; }
     public Sprite GetNecklaceSprite() { return NecklaceSprite; }
 
+    /// <summary>
+    /// 아이템을 추가합니다.
+    /// </summary>
     public void AddItem()
     {
         if (!IsHave)

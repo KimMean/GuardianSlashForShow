@@ -17,7 +17,6 @@ public class StoreItemBox : MonoBehaviour
 
     [SerializeField] Text titleText;
     [SerializeField] Text priceText;
-    [SerializeField] MessageBox messageBox;
 
 
     [Header("ProductInfo")]
@@ -36,17 +35,17 @@ public class StoreItemBox : MonoBehaviour
         titleText.text = productName;
         priceText.text = price.ToString();
 
-        if (product.currencyType == Products.Coin)
+        if (product.currencyType == Products.Coin)  // 지불 방식이 코인일 경우
         {
             payment = Payment.Local;
             currencyType = CurrencyType.Coin;
         }
-        else if(product.currencyType == Products.Diamond)
+        else if(product.currencyType == Products.Diamond)   // 지불 방식이 다이아인 경우
         {
             payment= Payment.Local;
             currencyType = CurrencyType.Diamond;
         }
-        else
+        else    // 지불 방식이 결제인 경우
         {
             payment = Payment.Google;
             currencyType = CurrencyType.KRW;
@@ -55,14 +54,18 @@ public class StoreItemBox : MonoBehaviour
 
     }
 
+    // 구매 버튼 클릭
     public void OnPurchaseButtonClick()
     {
         SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
+
+        if (!NetworkManager.Instance.GetIsConnected()) return;
+
         if (currencyType == CurrencyType.Coin)
         {
             if(GameManager.Instance.GetCoin() < price)
             {
-                messageBox.ShowMessage("보유한 재화가 부족합니다.");
+                MessageManager.Instance.ShowMessage("보유한 재화가 부족합니다.");
                 Debug.Log("보유한 재화가 부족합니다.");
                 return;
             }
@@ -71,7 +74,7 @@ public class StoreItemBox : MonoBehaviour
         {
             if (GameManager.Instance.GetDiamond() < price)
             {
-                messageBox.ShowMessage("보유한 재화가 부족합니다.");
+                MessageManager.Instance.ShowMessage("보유한 재화가 부족합니다.");
                 Debug.Log("보유한 재화가 부족합니다.");
                 return;
             }

@@ -5,6 +5,6 @@ using UnityEngine;
 
 public interface ILoadingOperation
 {
-    public float Progress { get; }
+    public float progress { get; }
     Task Execute();
 }

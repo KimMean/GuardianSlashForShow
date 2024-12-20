@@ -32,26 +32,27 @@ public class RingDetailPopup : MonoBehaviour
         Text_Jump.text = "점프력 : + " + _RingDetail.GetJump().ToString() + "%"; ;
     }
 
-
-    /*
-     * 닫기 버튼 클릭
-     */
+    /// <summary>
+    /// 닫기 버튼 클릭
+    /// </summary>
     public void OnClosedButtonClick()
     {
         gameObject.SetActive(false);
         SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.PopupClose);
     }
-
-    /*
-     * 장착 버튼 클릭
-     */
+    /// <summary>
+    /// 장착 버튼 클릭
+    /// </summary>
     public void OnEquipmentButtonClick()
     {
+        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
+
         if (GameManager.Instance.GetEquipmentRing() == ItemCode)
             return;
 
+        if (!NetworkManager.Instance.GetIsConnected()) return;
+
         NetworkManager.Instance.ChangeEquipment(Packet.Products.Ring, ItemCode);
-        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
         //GameManager.Instance.SetEquipmentRing(RingCode);
     }
 

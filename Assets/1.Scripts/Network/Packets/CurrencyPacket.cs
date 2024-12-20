@@ -9,6 +9,11 @@ using static Packet;
 public class CurrencyPacket
 {
 
+    /// <summary>
+    /// 사용자의 재화 정보를 요청합니다.
+    /// 패킷 크기 / 명령 / 토큰 사이즈 / 토큰
+    /// </summary>
+    /// <param name="token">토큰</param>
     public static ArraySegment<byte> GetCurrencyRequest(string token)
     {
         ArraySegment<byte> openSegment = SendBufferHelper.Open(1024);
@@ -32,6 +37,12 @@ public class CurrencyPacket
         return SendBufferHelper.Close(count);
     }
 
+    /// <summary>
+    /// 사용자의 재화 정보를 받습니다.
+    /// 반환 결과 / 코인 / 다이아
+    /// </summary>
+    /// <param name="buffer"></param>
+    /// <returns></returns>
     public bool CheckCurrencyResponse(ArraySegment<byte> buffer)
     {
         Debug.Log("Currency 받는 중");

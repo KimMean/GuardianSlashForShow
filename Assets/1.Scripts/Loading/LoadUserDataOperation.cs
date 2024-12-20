@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class LoadUserDataOperation : ILoadingOperation
 {
-    public float Progress { get; private set; }
+    public float progress { get; private set; }
     private List<Func<Task<bool>>> LoadTasks;
 
 
@@ -26,10 +26,12 @@ public class LoadUserDataOperation : ILoadingOperation
             () => NetworkManager.Instance.GetProductData()
         };
     }
-
+    /// <summary>
+    /// 씬 로딩 시 필요한 데이터를 차례로 요청합니다.
+    /// </summary>
     public async Task Execute()
     {
-        Progress = 0.0f;
+        progress = 0.0f;
 
         int totalTasks = LoadTasks.Count;
         int completedTasks = 0;
@@ -37,13 +39,12 @@ public class LoadUserDataOperation : ILoadingOperation
         foreach(Func<Task<bool>> taskFunc in LoadTasks)
         {
             Task<bool> task = taskFunc();
-            // 병렬처리를 위해서는 불필요
             bool result = await task; // Task가 완료될 때까지 기다림
             if (result)
             {
                 //Debug.Log($"Task 실행 중 : {task.ToString()}");
                 completedTasks++;
-                Progress = (float)completedTasks / totalTasks;
+                progress = (float)completedTasks / totalTasks;
             }
             else
             {

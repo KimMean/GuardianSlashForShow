@@ -3,44 +3,74 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using static Packet;
 
 public class SocketManager
 {
+    public static readonly int HEADER_SIZE = 2;
+
     object Lock = new object();
 
-    Socket _Socket;
+    Socket socket;
+    IPEndPoint ipEndPoint;
+    bool isConnected = false;
+    bool isConnecting = false; // 연결 시도 중
 
-    ReceiveBuffer _ReceiveBuffer = new ReceiveBuffer(2048);
+    ReceiveBuffer receiveBuffer = new ReceiveBuffer(2048);
 
-    SocketAsyncEventArgs ReceiveArgs = new SocketAsyncEventArgs();
-    SocketAsyncEventArgs SendArgs = new SocketAsyncEventArgs();
+    SocketAsyncEventArgs receiveArgs;
+    SocketAsyncEventArgs sendArgs;
 
-    Queue<ArraySegment<byte>> SendQueue = new Queue<ArraySegment<byte>>();
-    List<ArraySegment<byte>> SendPendingList = new List<ArraySegment<byte>>();
+    Queue<ArraySegment<byte>> sendQueue = new Queue<ArraySegment<byte>>();
+    List<ArraySegment<byte>> sendPendingList = new List<ArraySegment<byte>>();
 
-    public static readonly int HEADER_SIZE = 2;
+    /// <summary>
+    /// 소켓을 초기화 합니다.
+    /// </summary>
+    /// <param name="endPoint">IPEndPoint</param>
     public void Init(IPEndPoint endPoint)
     {
-        _Socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        if (isConnecting) return;
+        if (isConnected) return;
+
+        isConnecting = true;
+        ipEndPoint = endPoint;
+        socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+        receiveArgs = new SocketAsyncEventArgs();
+        sendArgs = new SocketAsyncEventArgs();
 
         SocketAsyncEventArgs args = new SocketAsyncEventArgs();
         args.Completed += OnConnectCompleted;
-        args.RemoteEndPoint = endPoint;
-        args.UserToken = _Socket;
+        args.RemoteEndPoint = ipEndPoint;
+        args.UserToken = socket;
+        
 
         RegisterConnect(args);
     }
 
+    /// <summary>
+    /// 소켓을 비동기로 연결합니다.
+    /// 즉시 연결된 경우 처리합니다.
+    /// </summary>
+    /// <param name="args">SocketAsyncEventArgs</param>
     void RegisterConnect(SocketAsyncEventArgs args)
     {
-        bool pending = _Socket.ConnectAsync(args);
+        //Debug.Log("Try Connect");
+        bool pending = socket.ConnectAsync(args);
+        //Debug.Log($"ConnectAsync : {pending}");
         if (pending == false)
             OnConnectCompleted(null, args);
     }
 
+    /// <summary>
+    /// 연결 응답을 받습니다.
+    /// </summary>
+    /// <param name="sender">object</param>
+    /// <param name="args">SocketAsyncEventArgs</param>
     public void OnConnectCompleted(object sender, SocketAsyncEventArgs args)
     {
         if (args.SocketError == SocketError.Success)
@@ -48,75 +78,137 @@ public class SocketManager
             OnConnected(args.RemoteEndPoint);
             SessionStart();
             Debug.Log($"OnConnectCompleted : {args.SocketError}");
+            isConnected = true;
         }
         else
         {
             Debug.Log($"OnConnectCompleted Fail : {args.SocketError}");
+            isConnected = false;
         }
+        isConnecting = false;
     }
 
+    /// <summary>
+    /// 연결된 경우 이벤트를 받습니다. 현재 사용되지 않습니다.
+    /// </summary>
+    /// <param name="remoteEndPoint"></param>
     public void OnConnected(EndPoint remoteEndPoint)
     {
         //Debug.Log($"OnConnected : {remoteEndPoint}");
     }
 
+    /// <summary>
+    /// 세션을 시작하고 데이터 송수신 준비를 합니다.
+    /// </summary>
     public void SessionStart()
     {
-        ReceiveArgs.Completed += OnReceiveCompleted;
-        SendArgs.Completed += OnSendCompleted;
+        receiveArgs.Completed += OnReceiveCompleted;
+        sendArgs.Completed += OnSendCompleted;
 
         RegisterReceive();
         Debug.Log("SessionStart");
     }
 
-
-    public void Disconnect()
+    /// <summary>
+    /// 소켓이 연결되었는지 확인합니다.
+    /// </summary>
+    /// <returns>isConnected</returns>
+    public bool IsSocketConnected()
     {
-        if(_Socket != null && _Socket.Connected)
+        try
         {
-            _Socket.Shutdown(SocketShutdown.Both);
-            _Socket.Close();
-            Debug.Log("Disconnect");
+            return !(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
+        }
+        catch
+        {
+            return false; // 연결 문제 발생
         }
     }
 
+    /// <summary>
+    /// 연결을 종료합니다.
+    /// </summary>
+    public void Disconnect()
+    {
+        if(socket != null && isConnected)
+        {
+            // 소켓이 실제로 연결되어 있는지 확인
+            if (IsSocketConnected())
+            {
+                try
+                {
+                    socket.Shutdown(SocketShutdown.Both);
+                    Debug.Log("Socket shutdown sent to server.");
+                }
+                catch (SocketException ex)
+                {
+                    Debug.Log($"Socket shutdown failed: {ex.Message}");
+                }
+            }
+
+            socket.Close();
+            Debug.Log("Socket closed.");
+            isConnected = false;
+        }
+        // 재연결 시도
+        //StartReconnect();
+    }
+
+
+    public bool GetIsConnected()
+    {
+        return isConnected;
+    }
+
+    /// <summary>
+    /// 데이터를 송신합니다.
+    /// </summary>
+    /// <param name="sendBuff"></param>
     public void Send(ArraySegment<byte> sendBuff)
     {
         lock (Lock)
         {
-            SendQueue.Enqueue(sendBuff);
+            sendQueue.Enqueue(sendBuff);
 
-            if (SendPendingList.Count == 0)
+            if (sendPendingList.Count == 0)
                 RegisterSend();
         }
     }
+    /// <summary>
+    /// 큐에 있는 데이터를 전송합니다.
+    /// </summary>
     void RegisterSend()
     {
-        while (SendQueue.Count > 0)
+        while (sendQueue.Count > 0)
         {
-            ArraySegment<byte> buff = SendQueue.Dequeue();
-            //SendArgs.SetBuffer(buff, 0, buff.Length);
-            SendPendingList.Add(buff);
+            ArraySegment<byte> buff = sendQueue.Dequeue();
+            //sendArgs.SetBuffer(buff, 0, buff.Length);
+            sendPendingList.Add(buff);
         }
-        SendArgs.BufferList = SendPendingList;
+        sendArgs.BufferList = sendPendingList;
 
-        bool pending = _Socket.SendAsync(SendArgs);
+        bool pending = socket.SendAsync(sendArgs);
         if (pending == false)
-            OnSendCompleted(null, SendArgs);
+            OnSendCompleted(null, sendArgs);
     }
+    /// <summary>
+    /// 전송이 완료된 경우 호출됩니다.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="args"></param>
     void OnSendCompleted(object sender, SocketAsyncEventArgs args)
     {
         if (args.BytesTransferred > 0 && args.SocketError == SocketError.Success)
         {
             try
             {
-                SendArgs.BufferList = null;
-                SendPendingList.Clear();
+                sendArgs.BufferList = null;
+                sendPendingList.Clear();
 
-                //Console.WriteLine($"Transferred bytes : {SendArgs.BytesTransferred}");
+                //Console.WriteLine($"Transferred bytes : {sendArgs.BytesTransferred}");
 
-                OnSend(SendArgs.BytesTransferred);
-                if (SendQueue.Count > 0)
+                OnSend(sendArgs.BytesTransferred);
+                if (sendQueue.Count > 0)
                     RegisterSend();
             }
             catch (Exception ex)
@@ -135,44 +227,50 @@ public class SocketManager
         //Debug.Log($"Transferred bytes : {numOfBytes}");
     }
 
+    /// <summary>
+    /// 데이터를 수신합니다.
+    /// </summary>
     void RegisterReceive()
     {
-        //Debug.Log($"RegisterReceive : {_ReceiveBuffer}");
-        _ReceiveBuffer.Clean();
-        ArraySegment<byte> segment = _ReceiveBuffer.WriteSegment;
-        ReceiveArgs.SetBuffer(segment);
+        //Debug.Log($"RegisterReceive : {receiveBuffer}");
+        receiveBuffer.Clean();
+        ArraySegment<byte> segment = receiveBuffer.WriteSegment;
+        receiveArgs.SetBuffer(segment);
 
-        bool pending = _Socket.ReceiveAsync(ReceiveArgs);
+        bool pending = socket.ReceiveAsync(receiveArgs);
         if (pending == false)
-            OnReceiveCompleted(null, ReceiveArgs);
+            OnReceiveCompleted(null, receiveArgs);
     }
-
+    /// <summary>
+    /// 데이터가 수신된 경우 호출됩니다.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="args"></param>
     void OnReceiveCompleted(object sender, SocketAsyncEventArgs args)
     {
-        //Debug.Log($"OnReceiveCompleted Byte : {args.BytesTransferred}");
         if (args.BytesTransferred > 0 && args.SocketError == SocketError.Success)
         {
             // Write Cursor 이동
-            if (_ReceiveBuffer.OnWrite(args.BytesTransferred) == false)
+            if (receiveBuffer.OnWrite(args.BytesTransferred) == false)
             {
-                //Debug.Log($"_ReceiveBuffer.OnWrite(args.BytesTransferred) == false {_ReceiveBuffer.OnWrite(args.BytesTransferred) == false}");
+                //Debug.Log($"receiveBuffer.OnWrite(args.BytesTransferred) == false {receiveBuffer.OnWrite(args.BytesTransferred) == false}");
                 Disconnect();
                 return;
             }
 
-            int processLen = OnReceive(_ReceiveBuffer.ReadSegment);
+            int processLen = OnReceive(receiveBuffer.ReadSegment);
             //Debug.Log($"processLen {processLen}");
-            if (_ReceiveBuffer.DataSize < processLen)
+            if (receiveBuffer.DataSize < processLen)
             {
-                //Debug.Log($"_ReceiveBuffer.DataSize < processLen {_ReceiveBuffer.DataSize < processLen}");
+                //Debug.Log($"receiveBuffer.DataSize < processLen {receiveBuffer.DataSize < processLen}");
                 Disconnect();
                 return;
             }
             
 
-            if (_ReceiveBuffer.OnRead(processLen) == false)
+            if (receiveBuffer.OnRead(processLen) == false)
             {
-                //Debug.Log($"_ReceiveBuffer.OnRead(processLen) == false {_ReceiveBuffer.OnRead(processLen) == false}");
+                //Debug.Log($"receiveBuffer.OnRead(processLen) == false {receiveBuffer.OnRead(processLen) == false}");
                 Disconnect();
                 return;
             }
@@ -183,11 +281,16 @@ public class SocketManager
         }
         else
         {
-            //Debug.Log($"args.BytesTransferred > 0 && args.SocketError == SocketError.Success");
+            Debug.Log($"args.SocketError : {args.SocketError}");
             Disconnect();
         }
     }
 
+    /// <summary>
+    /// 전송받은 데이터를 1차 검증합니다.
+    /// </summary>
+    /// <param name="buffer"></param>
+    /// <returns></returns>
     int OnReceive(ArraySegment<byte> buffer)
     {
         int processLength = 0;

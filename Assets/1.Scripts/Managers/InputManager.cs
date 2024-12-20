@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+
+/// <summary>
+/// 사용되지 않습니다.
+/// </summary>
 public class InputManager : MonoBehaviour
 {
     public delegate void InputJump();

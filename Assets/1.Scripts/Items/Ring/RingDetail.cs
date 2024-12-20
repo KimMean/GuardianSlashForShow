@@ -8,8 +8,17 @@ using UnityEngine;
 public class RingDetail
 {
     string Name;
+    /// <summary>
+    /// 추가 공격력
+    /// </summary>
     int Attack = 0;
-    int Gold = 0;       
+    /// <summary>
+    /// 추가 골드
+    /// </summary>
+    int Gold = 0; 
+    /// <summary>
+    /// 추가 점프력
+    /// </summary>
     int Jump = 0;
     bool IsHave = false;
     Sprite RingSprite = null;
@@ -34,6 +43,9 @@ public class RingDetail
     public void SetRingSprite(Sprite ringSprite) { RingSprite = ringSprite; }
     public Sprite GetRingSprite() { return RingSprite; }
 
+    /// <summary>
+    /// 보유한 아이템을 추가합니다.
+    /// </summary>
     public void AddItem()
     {
         if (!IsHave)

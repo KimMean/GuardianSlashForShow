@@ -49,8 +49,9 @@ public class WeaponPanelController : MonoBehaviour
         _WeaponDetailPopup.SetWeaponData(itemCode);
     }
 
-    // 장착한 장비가 변경되었을 때
-    // 장착한 장비가 업그레이드 되었을 때
+    /// <summary>
+    /// 장착한 장비의 정보를 갱신합니다.
+    /// </summary>
     public void UpdateEquipmentView()
     {
         equipItemCode = GameManager.Instance.GetEquipmentWeapon();
@@ -61,6 +62,9 @@ public class WeaponPanelController : MonoBehaviour
         Image_Item.sprite = _weaponDetail.GetWeaponSprite();
     }
 
+    /// <summary>
+    /// 무기 상자를 생성합니다.
+    /// </summary>
     void CreateWeaponBox()
     {
         List<string> codes = WeaponManager.Instance.GetWeaponCodeList();

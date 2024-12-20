@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class ShieldController : MonoBehaviour
 {
-    [SerializeField] GameObject StickMan;
-    BoxCollider2D _BoxCollider;
-    LayerMask _LayerMask;
+    [SerializeField] GameObject stickMan;
+    BoxCollider2D boxCollider;
+    LayerMask layerMask;
     ParticleManager defenseParticle;
     CustomPhysics physics;
 
@@ -16,9 +16,9 @@ public class ShieldController : MonoBehaviour
 
     private void Awake()
     {
-        _BoxCollider = GetComponent<BoxCollider2D>();
-        _LayerMask = LayerMask.GetMask("Block");
-        physics = StickMan.GetComponent<CustomPhysics>();
+        boxCollider = GetComponent<BoxCollider2D>();
+        layerMask = LayerMask.GetMask("Block");
+        physics = stickMan.GetComponent<CustomPhysics>();
 
         string necklaceCode = GameManager.Instance.GetEquipmentNecklace();
         if (necklaceCode != "N000")
@@ -32,16 +32,19 @@ public class ShieldController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 활성화 된 경우 충돌체를 검사합니다.
+    /// </summary>
     private void OnEnable()
     {
-        Bounds bounds = _BoxCollider.bounds;
+        Bounds bounds = boxCollider.bounds;
 
         // 콜라이더의 중심과 크기 설정
         Vector2 center = bounds.center;
         Vector2 size = bounds.size;
 
         // 겹치는 오브젝트들을 검사합니다.
-        Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, 0, _LayerMask);
+        Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, 0, layerMask);
 
         foreach (Collider2D hit in hits)
         {
@@ -51,15 +54,19 @@ public class ShieldController : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// 블록이 충돌한 경우 밀어냅니다.
+    /// </summary>
+    /// <param name="other"></param>
     private void OnTriggerEnterBlock(Collider2D other)
     {
+        SoundManager.Instance.PlaySfx(SoundManager.SFX_Clip.Defense);
         PushBlock(other);
         defenseParticle.ParticleActivation(transform.position);
         if (physics.GetIsGround())
         {
             StageManager.Instance.GroundDefense();
         }
-        SoundManager.Instance.PlaySfx(SoundManager.SFX_Clip.Defense);
     }
 
     //private void OnTriggerEnter2D(Collider2D collision)
@@ -70,6 +77,10 @@ public class ShieldController : MonoBehaviour
     //    }
     //}
 
+    /// <summary>
+    /// 블록이 충돌한 경우 대상 오브젝트를 겹친만큼 밀어냅니다.
+    /// </summary>
+    /// <param name="other"></param>
     private void PushBlock(Collider2D other)
     {
         float overlapY = Calculator.GetOverlapValue(GetComponent<Collider2D>().bounds, other.bounds).y;
@@ -79,9 +90,9 @@ public class ShieldController : MonoBehaviour
         other.transform.parent.position = position;    // 겹친만큼 이동
 
         CustomPhysics otherPhysics = other.transform.parent.GetComponent<CustomPhysics>();
-        StickMan.GetComponent<CustomPhysics>().Velocity = otherPhysics.Velocity;
+        stickMan.GetComponent<CustomPhysics>().velocity = otherPhysics.velocity;
         //Debug.Log(otherPhysics.Velocity);
-        otherPhysics.Velocity = Vector2.zero;
+        otherPhysics.velocity = Vector2.zero;
         otherPhysics.AddForce(Vector2.up * PushPower);
         //Debug.Log($"PushPower : {PushPower}");
     }

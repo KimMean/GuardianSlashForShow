@@ -7,8 +7,17 @@ public class WeaponDetail
     const int BASE_UPGRADE_COST = 500;
 
     string Name;
+    /// <summary>
+    /// 강화 레벨
+    /// </summary>
     int Level = 0;
+    /// <summary>
+    /// 무기 수량
+    /// </summary>
     int Quantity = 0;
+    /// <summary>
+    /// 공격 레벨
+    /// </summary>
     int AttackLevel = 0;
     Sprite WeaponSprite = null;
 
@@ -63,11 +72,6 @@ public class WeaponDetail
         //Debug.Log("SetUserData");
     }
 
-    public int GetUpgradeQuantity()
-    {
-        return Level / 3 + 1;
-    }
-
     public int GetWeaponLevel()
     {
         return Level;
@@ -77,6 +81,9 @@ public class WeaponDetail
         return Quantity;
     }
 
+    /// <summary>
+    /// 무기의 수량을 추가합니다.
+    /// </summary>
     public void AddItemQuantity(int quantity = 1)
     {
         if (!IsHave)
@@ -90,10 +97,17 @@ public class WeaponDetail
         if(OnNewItemAcquired != null)
             MainThreadDispatcher.Instance.Enqueue(OnNewItemAcquired.Invoke);
     }
+
+    /// <summary>
+    /// 강화하는데 필요한 무기 수량
+    /// </summary>
     public int GetEnhancementQuantity()
     {
         return GetWeaponLevel() / 3 + 1;
     }
+    /// <summary>
+    /// 무기의 공격력
+    /// </summary>
     public long GetAttackPower()
     {
         return FibonacciDataManager.Instance.GetFibonacciData(AttackLevel);
@@ -109,23 +123,38 @@ public class WeaponDetail
         return IsHave;
     }
 
+    /// <summary>
+    /// 강화 비용
+    /// </summary>
     public int GetEnhancementPrice()
     {
         return AttackLevel * BASE_UPGRADE_COST;
     }
 
+    /// <summary>
+    /// 강화 가능 여부를 판단합니다.
+    /// </summary>
     public bool CanEnhancement()
     {
         if (!IsHave) return false;
 
         if (Level >= MAX_LEVEL)
+        {
+            MessageManager.Instance.ShowMessage("최대 레벨입니다.");
             return false;
+        }
 
-        if (Quantity < GetUpgradeQuantity())
+        if (Quantity < GetEnhancementQuantity())
+        {
+            MessageManager.Instance.ShowMessage("강화를 위한 수량이 충분하지 않습니다.");
             return false;
+        }
 
         if (GameManager.Instance.GetCoin() < GetEnhancementPrice())
+        {
+            MessageManager.Instance.ShowMessage("보유한 재화가 부족합니다.");
             return false;
+        }
 
         return true;
     }
@@ -134,16 +163,7 @@ public class WeaponDetail
     {
         if (!CanEnhancement()) return;
 
-
-        // 강화 가능한지 체크
-
-        // 강화에 필요한 것
-        // 같은 무기 n 개
-        // 강화에 필요한 자금
-
-        // 토큰, 업글코드, 무기 코드, 필요수량, 업글비용 보내기
-        // 무기 코드, Level, AttackLevel, 남은 수량, 남은 재화 받기
-        Quantity -= GetUpgradeQuantity();
+        Quantity -= GetEnhancementQuantity();
         Level++;
         AttackLevel++;
     }

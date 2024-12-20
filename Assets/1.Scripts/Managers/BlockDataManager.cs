@@ -16,8 +16,8 @@ public class BlockDataManager : MonoBehaviour
         }
     }
 
-    string BlockFilePath = "Blocks/";
-    string BlockPrefixName = "Stage";
+    string blockFilePath = "Blocks/";
+    string blockPrefixName = "Stage";
 
     [SerializeField] Sprite[] BlockTextures;
 
@@ -29,17 +29,6 @@ public class BlockDataManager : MonoBehaviour
         LoadBlockTextures();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public Sprite GetStageBlockSprite(int stage)
     {
@@ -48,8 +37,6 @@ public class BlockDataManager : MonoBehaviour
 
     private void LoadBlockTextures()
     {
-        //BlockTextures[0] = Resources.Load<Sprite>(BlockFilePath +  BlockPrefixName + "01");
-        //Debug.Log(BlockFilePath + BlockPrefixName + "01");
-        BlockTextures = Resources.LoadAll<Sprite>(BlockFilePath);
+        BlockTextures = Resources.LoadAll<Sprite>(blockFilePath);
     }
 }

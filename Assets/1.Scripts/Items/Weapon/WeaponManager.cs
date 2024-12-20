@@ -32,27 +32,29 @@ public class WeaponManager
         {
             Weapons[code].SetWeaponSprite(Resources.Load<Sprite>("Sword/" + code));
         });
-        //Debug.Log($"Weapon Data Code : {code}, Name : {name}, AtkLevel : {attackLevel}");
     }
 
     public void SetUserWeaponData(string code, int enhancementLevel, int quantity, int attackLevel)
     {
-        //Debug.Log($"Weapon Data code : {Weapons[code]}");
-        //Debug.Log($"Weapon Data Code : {code}, EnhancementLevel : {enhancementLevel}, Quantity : {quantity}, AtkLevel : {attackLevel}");
         Weapons[code].SetUserData(enhancementLevel, quantity, attackLevel);
     }
 
     public WeaponDetail GetWeaponData(string code)
     {
-        //Debug.Log($"GetWeaponData : {code}");
         return Weapons[code];
     }
 
+    /// <summary>
+    /// 무기 코드 리스트를 반환합니다.
+    /// </summary>
     public List<string> GetWeaponCodeList()
     {
         return new List<string>(Weapons.Keys.OrderBy(k => k));
     }
 
+    /// <summary>
+    /// 무기 이름 리스트를 반환합니다.
+    /// </summary>
     public List<string> GetWeaponNameList()
     {
         List<string> sortedNames = Weapons
@@ -62,6 +64,10 @@ public class WeaponManager
         return sortedNames;
     }
 
+    /// <summary>
+    /// 아이템을 추가합니다.
+    /// </summary>
+    /// <param name="itemCodes"></param>
     public void AddItems(List<string> itemCodes)
     {
         foreach (string itemCode in itemCodes)
@@ -70,9 +76,4 @@ public class WeaponManager
         }
     }
 
-    //public void SetUserWeaponData(string code, int level, int quantity, int attackLevel)
-    //{
-    //    Weapons[code].SetUserData(level, quantity, attackLevel);
-    //    Debug.Log($"Weapon Data Code : {code}, Level : {level}, Quantity : {quantity}, AtkLevel : {attackLevel}");
-    //}
 }

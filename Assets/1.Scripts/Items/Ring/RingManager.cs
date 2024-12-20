@@ -47,7 +47,9 @@ public class RingManager
     {
         return new List<string>(Rings.Keys);
     }
-
+    /// <summary>
+    /// 전체 반지 이름을 반환합니다.
+    /// </summary>
     public List<string> GetRingNameList()
     {
         List<string> sortedNames = Rings
@@ -56,7 +58,9 @@ public class RingManager
             .ToList();
         return sortedNames;
     }
-
+    /// <summary>
+    /// 보유한 아이템을 추가합니다.
+    /// </summary>
     public void AddItems(List<string> itemCodes)
     {
         foreach (string itemCode in itemCodes)

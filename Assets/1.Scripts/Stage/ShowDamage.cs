@@ -15,6 +15,9 @@ public class ShowDamage : MonoBehaviour
 
     private Action onDeactivate;
 
+    /// <summary>
+    /// 데미지 UI가 표시되면서 위로 올라가는 효과
+    /// </summary>
     private void Update()
     {
         if (!gameObject.activeSelf) return;
@@ -36,6 +39,12 @@ public class ShowDamage : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 데미지를 설정합니다.
+    /// </summary>
+    /// <param name="position">데미지를 표시할 위치</param>
+    /// <param name="damage">피해량</param>
+    /// <param name="onDeactivateCallback">풀링 액션</param>
     public void SetDamage(Vector2 position, long damage, Action onDeactivateCallback)
     {
         startPosition = position;
@@ -47,6 +56,9 @@ public class ShowDamage : MonoBehaviour
         //GetComponent<Animator>().Play("Damage_Show");
     }
 
+    /// <summary>
+    /// 데미지 표시를 숨기고 재활용합니다.
+    /// </summary>
     public void HideDamage()
     {
         gameObject.SetActive(false);

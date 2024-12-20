@@ -8,6 +8,10 @@ using static Packet;
 
 public class WeaponPacket
 {
+    /// <summary>
+    /// 전체 무기 데이터 패킷
+    /// 패킷 크기 / 패킷 명령
+    /// </summary>
     public static ArraySegment<byte> GetWeaponDataRequest()
     {
         ArraySegment<byte> openSegment = SendBufferHelper.Open(1024);
@@ -20,6 +24,10 @@ public class WeaponPacket
         return SendBufferHelper.Close(count);
     }
 
+    /// <summary>
+    /// 전달받은 무기 데이터
+    /// 패킷 명령 / 반환 결과 / 데이터 개수 / 데이터 정보(개수만큼) {무기 코드, 무기 이름, 무기 기본 공격 레벨}
+    /// </summary>
     public bool ReceiveWeaponData(ArraySegment<byte> buffer)
     {
         Debug.Log("ReceiveWeaponData 받는 중");
@@ -62,7 +70,10 @@ public class WeaponPacket
         return true;
     }
 
-
+    /// <summary>
+    /// 사용자가 보유한 무기 데이터를 요청합니다.
+    /// 패킷 크기 / 명령 / AccessToken크기 / Token
+    /// </summary>
     public static ArraySegment<byte> GetUserWeaponDataRequest(string token)
     {
         ArraySegment<byte> openSegment = SendBufferHelper.Open(1024);
@@ -87,6 +98,10 @@ public class WeaponPacket
         return SendBufferHelper.Close(count);
     }
 
+    /// <summary>
+    /// 사용자가 보유한 무기 데이터
+    /// 반환 결과 / 데이터 개수 / 데이터 정보 {무기 코드, 강화 레벨, 수량, 공격 레벨}
+    /// </summary>
     public bool ReceiveUserWeaponData(ArraySegment<byte> buffer)
     {
         //Debug.Log("ReceiveUserWeaponData 받는 중");
@@ -129,7 +144,15 @@ public class WeaponPacket
 
         return true;
     }
-
+    /// <summary>
+    /// 무기 강화를 요청합니다.
+    /// 패킷 크기 / 명령 / 토큰 사이즈 / 토큰 / 아이템 코드 사이즈 / 아이템 코드 / 필요한 무기 수량 / 강화 비용
+    /// </summary>
+    /// <param name="token">유저토큰</param>
+    /// <param name="itemCode">아이템 코드</param>
+    /// <param name="quantityRequire">강화 수량</param>
+    /// <param name="cost">강화 비용</param>
+    /// <returns></returns>
     public static ArraySegment<byte> GetUserWeaponEnhancementRequest(string token, string itemCode, int quantityRequire, int cost)
     {
         ArraySegment<byte> openSegment = SendBufferHelper.Open(1024);
@@ -169,7 +192,12 @@ public class WeaponPacket
 
         return SendBufferHelper.Close(count);
     }
-
+    /// <summary>
+    /// 무기 강화 결과를 전달받습니다.
+    /// 반환 결과 / 코드 사이즈 / 코드 / 강화 레벨 / 공격 레벨 / 남은 수량 / 남은 재화
+    /// </summary>
+    /// <param name="buffer"></param>
+    /// <returns></returns>
     public bool ReceiveUserWeaponEnhancementData(ArraySegment<byte> buffer)
     {
         Debug.Log("ReceiveUserWeaponData 받는 중");
@@ -202,12 +230,8 @@ public class WeaponPacket
         int coin = BitConverter.ToInt32(buffer.Array, buffer.Offset + parsingCount);
         parsingCount += sizeof(int);
 
-        //Debug.Log($"Weapon itemCode : {itemCode}, Level : {enhancementLevel}, Quantity : {quantity}, AtkLevel : {attackLevel}");
-        //MainThreadDispatcher.Instance.Enqueue(() =>
-        //{
-            WeaponManager.Instance.SetUserWeaponData(itemCode, enhancementLevel, quantity, attackLevel);
-            GameManager.Instance.SetCoin(coin);
-        //});
+        WeaponManager.Instance.SetUserWeaponData(itemCode, enhancementLevel, quantity, attackLevel);
+        GameManager.Instance.SetCoin(coin);
         
 
         return true;

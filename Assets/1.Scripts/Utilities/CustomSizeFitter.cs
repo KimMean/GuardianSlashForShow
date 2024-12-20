@@ -49,7 +49,7 @@ public class CustomSizeFitter : MonoBehaviour
         //Debug.Log($"Width : {targetText.preferredWidth}, padding left : {padding.left}, Padding Right : {padding.right}");
         //Debug.Log($"Height : {targetText.preferredHeight}, padding left : {padding.top}, Padding Right : {padding.bottom}");
         // RectTransform 크기 업데이트
-        rectTransform.sizeDelta = new Vector2(width, height);
+        rectTransform.sizeDelta = new Vector2(width, rectTransform.sizeDelta.y);
     }
 
     private void OnValidate()

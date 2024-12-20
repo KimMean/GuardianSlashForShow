@@ -8,11 +8,11 @@ public class ParticleManager : MonoBehaviour
 
     [SerializeField] private int MaxParticles = 10;
 
-    private List<GameObject> Particles;
+    private List<GameObject> particles;
 
     private void Awake()
     {
-        Particles = new List<GameObject>();
+        particles = new List<GameObject>();
     }
 
     private void OnEnable()
@@ -21,17 +21,17 @@ public class ParticleManager : MonoBehaviour
         {
             GameObject particle = Instantiate(ParticlePrefab, Vector3.zero, Quaternion.identity);
             //particle.SetActive(false);
-            Particles.Add(particle);
+            particles.Add(particle);
         }
     }
 
     private void OnDisable()
     {
-        foreach(GameObject particle in Particles)
+        foreach(GameObject particle in particles)
         {
             Destroy(particle);
         }
-        Particles.Clear();
+        particles.Clear();
     }
 
     // Start is called before the first frame update
@@ -48,7 +48,7 @@ public class ParticleManager : MonoBehaviour
 
     public void ParticleActivation(Vector2 position)
     {
-        foreach (GameObject particle in Particles)
+        foreach (GameObject particle in particles)
         {
             if (particle.activeSelf) continue;
 

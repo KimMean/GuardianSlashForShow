@@ -28,7 +28,9 @@ public class NecklaceBox : MonoBehaviour
         Image_Item.sprite = _NecklaceDetail.GetNecklaceSprite();
         Locked.SetActive(!_NecklaceDetail.GetIsPossess());
     }
-
+    /// <summary>
+    /// 새로운 목걸이를 얻은 경우 잠금을 해제합니다.
+    /// </summary>
     public void OnUnlocked()
     {
         if (Locked.activeSelf)
@@ -39,9 +41,13 @@ public class NecklaceBox : MonoBehaviour
     {
         _NecklacePanelController = necklacePanelController;
     }
-
+    /// <summary>
+    /// 아이템 박스를 클릭한 경우 세부 정보를 보여줍니다.
+    /// </summary>
     public void OnNecklaceBoxClicked()
     {
+        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
+
         if (_NecklaceDetail.GetIsPossess())
         {
             _NecklacePanelController.ShowNecklaceDetailPopup(ItemCode);

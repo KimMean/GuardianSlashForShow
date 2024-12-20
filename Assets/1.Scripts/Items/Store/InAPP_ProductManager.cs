@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Packet;
 
+/// <summary>
+/// 인앱 상품 정보를 가지고 있습니다.
+/// </summary>
 public class InAPP_ProductManager
 {
     private static InAPP_ProductManager instance;

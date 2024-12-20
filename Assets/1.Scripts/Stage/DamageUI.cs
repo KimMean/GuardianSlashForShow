@@ -13,7 +13,9 @@ public class DamageUI : MonoBehaviour
     {
         InitializePool();
     }
-    // 오브젝트 풀 초기화
+    /// <summary>
+    /// 오브젝트 풀을 초기화 합니다.
+    /// </summary>
     private void InitializePool()
     {
         for (int i = 0; i < poolSize; i++)
@@ -24,7 +26,10 @@ public class DamageUI : MonoBehaviour
         }
     }
 
-    // 오브젝트 풀에서 UI 가져오기
+    /// <summary>
+    /// 오브젝트 풀에서 UI를 가져옵니다.
+    /// </summary>
+    /// <returns></returns>
     private GameObject GetFromPool()
     {
         if (damagePool.Count > 0)
@@ -40,7 +45,10 @@ public class DamageUI : MonoBehaviour
         }
     }
 
-    // 오브젝트를 다시 풀로 반환
+    /// <summary>
+    /// 오브젝트를 다시 풀로 반환합니다.
+    /// </summary>
+    /// <param name="damageUI"></param>
     private void ReturnToPool(GameObject damageUI)
     {
         //Debug.Log("Return To Pool");
@@ -48,7 +56,11 @@ public class DamageUI : MonoBehaviour
         damagePool.Enqueue(damageUI);
     }
 
-    // 데미지 UI 표시
+    /// <summary>
+    /// 데미지 UI를 표시합니다.
+    /// </summary>
+    /// <param name="position">데미지가 표시될 위치</param>
+    /// <param name="damage">피해량</param>
     public void ShowDamageUI(Vector3 position, long damage)
     {
         GameObject damageUI = GetFromPool();

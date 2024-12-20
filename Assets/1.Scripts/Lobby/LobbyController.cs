@@ -54,9 +54,14 @@ public class LobbyController : MonoBehaviour
     {
     }
 
-
+    /// <summary>
+    /// 메뉴 버튼 클릭
+    /// </summary>
+    /// <param name="index">홈 / 무기 / 목걸이 / 반지 / 상점</param>
     public void MenuButtonOnClick(int index)
     {
+        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
+
         if (currentMenu == index) return;
 
         MainMenu[currentMenu].SetActive(false);
@@ -64,11 +69,17 @@ public class LobbyController : MonoBehaviour
         MainMenu[currentMenu].SetActive(true);
         Text_Title.text = MainMenu[currentMenu].name;
 
-        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
     }
 
+    /// <summary>
+    /// 스테이지 시작 버튼 클릭
+    /// </summary>
     public void StageStartButtonOnClick()
     {
+        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
+
+        if (!NetworkManager.Instance.GetIsConnected()) return;
+
         int targetStage = _StagePanelController.GetTargetStage();
         int clearStage = GameManager.Instance.GetClearStage();
 
@@ -79,7 +90,6 @@ public class LobbyController : MonoBehaviour
             return;
         }
 
-        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
         GameManager.Instance.SetCurrentStage(targetStage);
         // SceneLoad
         LoadingManager.LoadScene("Stage", false);
@@ -87,6 +97,7 @@ public class LobbyController : MonoBehaviour
 
     public void ShowSettingPanel()
     {
+        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.PopupOpen);
         SettingPanel.SetActive(true);
     }
 

@@ -4,9 +4,14 @@ using UnityEngine;
 
 public class Packet
 {
+    /// <summary>
+    /// 명령
+    /// </summary>
     public enum Command
     {
         NONE = 0,
+        Heartbeat = 1,
+        Information = 2,
         GuestSignUP = 10,
         GoogleSignUP = 11,
         GuestLogin = 20,
@@ -29,6 +34,9 @@ public class Packet
         MAX = 65535
     }
 
+    /// <summary>
+    /// 반환 결과
+    /// </summary>
     public enum ResultCommand
     {
         NONE = 0,
@@ -37,6 +45,9 @@ public class Packet
         MAX = 65535
     }
 
+    /// <summary>
+    /// 제품
+    /// </summary>
     public enum Products
     {
         NONE = 0,
@@ -50,12 +61,18 @@ public class Packet
         MAX = 65535
     }
 
+    /// <summary>
+    /// 지불 방식
+    /// </summary>
     public enum Payment
     {
         Local = 0,
         Google = 1,
     }
 
+    /// <summary>
+    /// 게임 결과 
+    /// </summary>
     public enum GameState
     {
         GameOver = 0,

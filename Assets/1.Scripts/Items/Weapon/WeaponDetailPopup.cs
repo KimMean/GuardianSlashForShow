@@ -18,6 +18,7 @@ public class WeaponDetailPopup : MonoBehaviour
     [SerializeField] Text Text_Quantity;
 
     [SerializeField] Text Text_ItemName;
+    [SerializeField] Text Text_Level;
     [SerializeField] Text Text_Ability;
     [SerializeField] Text Text_EnhancementPrice;
 
@@ -39,11 +40,15 @@ public class WeaponDetailPopup : MonoBehaviour
 
         Text_ItemName.text = _WeaponDetail.GetWeaponName();
         Image_Weapon.sprite = _WeaponDetail.GetWeaponSprite();
+        Text_Level.text = _WeaponDetail.GetWeaponLevel().ToString();
         Text_Ability.text = _WeaponDetail.GetAttackPower().ToString();
         Text_EnhancementPrice.text = _WeaponDetail.GetEnhancementPrice().ToString();
         RefreshQuantity();
     }
 
+    /// <summary>
+    /// 아이템 수량을 갱신합니다.
+    /// </summary>
     public void RefreshQuantity()
     {
         if (_WeaponDetail.GetWeaponLevel() == MAX_LEVEL)
@@ -60,45 +65,53 @@ public class WeaponDetailPopup : MonoBehaviour
             Text_Quantity.text = quantity.ToString() + " / " + EnhancementQuantity.ToString();
         }
     }
-
+    /// <summary>
+    /// 아이템 정보를 갱신합니다.
+    /// </summary>
     public void UpdateItemInformation()
     {
+        Text_Level.text = _WeaponDetail.GetWeaponLevel().ToString();
         Text_Ability.text = _WeaponDetail.GetAttackPower().ToString();
         Text_EnhancementPrice.text = _WeaponDetail.GetEnhancementPrice().ToString();
 
         RefreshQuantity();
     }
     
-    /*
-     * 닫기 버튼 클릭
-     */
+    /// <summary>
+    /// 닫기 버튼 클릭
+    /// </summary>
     public void OnClosedButtonClick()
     {
         gameObject.SetActive(false);
         SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.PopupClose);
     }
 
-    /*
-     * 장착 버튼 클릭
-     */
+    /// <summary>
+    /// 장착 버튼 클릭
+    /// </summary>
     public void OnEquipmentButtonClick()
     {
+        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
+
         if (GameManager.Instance.GetEquipmentWeapon() == itemCode)
             return;
 
+        if (!NetworkManager.Instance.GetIsConnected()) return;
+
         NetworkManager.Instance.ChangeEquipment(Packet.Products.Weapon, itemCode);
-        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
         //GameManager.Instance.SetEquipmentWeapon(WeaponCode);
     }
 
-    /*
-     * 강화 버튼 클릭
-     */
+    /// <summary>
+    /// 강화 버튼 클릭
+    /// </summary>
     public void OnEnhancementButtonClick()
     {
         SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
 
         if (!_WeaponDetail.CanEnhancement()) return;
+
+        if (!NetworkManager.Instance.GetIsConnected()) return;
 
         NetworkManager.Instance.WeaponEnhancement(itemCode, _WeaponDetail.GetEnhancementQuantity(), _WeaponDetail.GetEnhancementPrice());
         

@@ -32,15 +32,21 @@ public class RingBox : MonoBehaviour
         Image_Item.sprite = _RingDetail.GetRingSprite();
         Locked.SetActive(!_RingDetail.GetIsPossess());
     }
-
+    /// <summary>
+    /// 새로운 아이템을 얻은 경우 잠금을 해제합니다.
+    /// </summary>
     public void OnUnlocked()
     {
         if (Locked.activeSelf)
             Locked.SetActive(false);
     }
-
+    /// <summary>
+    /// 아이템 박스 클릭
+    /// </summary>
     public void OnRingBoxClicked()
     {
+        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
+
         if (_RingDetail.GetIsPossess())
         {
             _RingPanelController.ShowRingDetailPopup(ItemCode);

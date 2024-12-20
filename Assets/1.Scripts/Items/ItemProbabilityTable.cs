@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.Purchasing;
 using static Packet;
 
+/// <summary>
+/// 아이템 확률을 표시합니다.
+/// </summary>
 public class ItemProbabilityTable : MonoBehaviour
 {
     public enum Item
@@ -51,6 +54,9 @@ public class ItemProbabilityTable : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 무기 아이템 상자별 확률을 계산합니다.
+    /// </summary>
     void InitWeaponProbabilityTable()
     {
         List<string> weaponNames = WeaponManager.Instance.GetWeaponNameList();
@@ -71,6 +77,9 @@ public class ItemProbabilityTable : MonoBehaviour
         weaponTable.SetActive(false);
     }
 
+    /// <summary>
+    /// 목걸이 아이템 상자별 확률을 계산합니다.
+    /// </summary>
     void InitNecklaceProbabilityTable()
     {
         List<string> necklaceNames = NecklaceManager.Instance.GetNecklaceNameList();
@@ -89,6 +98,9 @@ public class ItemProbabilityTable : MonoBehaviour
         }
         necklaceTable.SetActive(false);
     }
+    /// <summary>
+    /// 반지 아이템 상자별 확률을 계산합니다.
+    /// </summary>
     void InitRingProbabilityTable()
     {
         List<string> ringNames = RingManager.Instance.GetRingNameList();

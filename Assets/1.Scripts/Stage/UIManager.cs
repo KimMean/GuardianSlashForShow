@@ -14,32 +14,32 @@ public class UIManager : MonoBehaviour
     const string RESULT_CLEAR = "GAME CLEAR";
     const string RESULT_FAILED = "GAME OVER";
 
-    [SerializeField] Text Text_Score;
-    [SerializeField] GameObject[] Life;
+    [SerializeField] Text text_Score;
+    [SerializeField] GameObject[] life;
 
     [Header("Wave")]
-    [SerializeField] Text Text_Wave;
-    [SerializeField] Slider WaveProgress;
+    [SerializeField] Text text_Wave;
+    [SerializeField] Slider waveProgress;
 
     [Header("BlockHealth")]
-    [SerializeField] GameObject BlockHealth;
-    [SerializeField] Slider HealthSlider;
-    [SerializeField] Text HealthText;
+    [SerializeField] GameObject blockHealth;
+    [SerializeField] Slider healthSlider;
+    [SerializeField] Text healthText;
 
     [Header("DamageUI")]
-    [SerializeField] DamageUI DamageController;
-    [SerializeField] GameObject Text_Combo;
+    [SerializeField] DamageUI damageController;
+    [SerializeField] GameObject text_Combo;
 
 
     [Header("Result")]
-    [SerializeField] GameObject ResultView;
-    [SerializeField] GameObject Btn_Claim;
-    [SerializeField] GameObject Btn_Reward;
-    [SerializeField] Text Text_ResultTitle;
-    [SerializeField] Text Text_Stage;
-    [SerializeField] Text Text_ResultScore;
-    [SerializeField] Text Text_ResultCoin;
-    [SerializeField] Text Text_ResultDia;
+    [SerializeField] GameObject resultView;
+    [SerializeField] GameObject btn_Claim;
+    [SerializeField] GameObject btn_Reward;
+    [SerializeField] Text text_Stage;
+    [SerializeField] Text text_ResultTitle;
+    [SerializeField] Text text_ResultScore;
+    [SerializeField] Text text_ResultCoin;
+    [SerializeField] Text text_ResultDia;
 
     private void Awake()
     {
@@ -50,12 +50,12 @@ public class UIManager : MonoBehaviour
     {
         SetScore(0);
 
-        for(int i = 0; i < Life.Length; i++)
+        for(int i = 0; i < life.Length; i++)
         {
-            Life[i].SetActive(true);
+            life[i].SetActive(true);
         }
 
-        ResultView.SetActive(false);
+        resultView.SetActive(false);
     }
 
     // Start is called before the first frame update
@@ -64,104 +64,116 @@ public class UIManager : MonoBehaviour
         
     }
 
+    /// <summary>
+    /// 캐릭터의 체력이 감소되었을 경우 체력 UI 하나를 비활성화 합니다.
+    /// </summary>
+    /// <param name="lifeIndex">체력 UI 인덱스</param>
     public void LifeDecrease(int lifeIndex)
     {
         if (lifeIndex < 0) return;
-        Life[lifeIndex].SetActive(false);
+        life[lifeIndex].SetActive(false);
     }
 
+    /// <summary>
+    /// 스코어를 표시합니다.
+    /// </summary>
+    /// <param name="score">Game Score</param>
     public void SetScore(int score)
     {
-        Text_Score.text = score.ToString();
+        text_Score.text = score.ToString();
     }
 
+    /// <summary>
+    /// 현재 웨이브를 표시합니다.
+    /// </summary>
+    /// <param name="str">Wave (1~10)</param>
     public void SetWaveText(string str)
     {
-        Text_Wave.text = str;
+        text_Wave.text = str;
     }
     public void SetWaveProgress(float value)
     {
-        if (value >= WaveProgress.maxValue)
-            value = WaveProgress.maxValue;
+        if (value >= waveProgress.maxValue)
+            value = waveProgress.maxValue;
 
-        WaveProgress.value = value;
+        waveProgress.value = value;
     }
 
     public void SetBlockHealthActive(bool active)
     {
-        BlockHealth.SetActive(active);
+        blockHealth.SetActive(active);
     }
 
     public void SetBlockHealth(long currentHealth, long maxHealth)
     {
         float healthRatio = currentHealth / (float)maxHealth;
-        HealthSlider.value = healthRatio;
-        HealthText.text = currentHealth.ToString() + "/" + maxHealth.ToString();
+        healthSlider.value = healthRatio;
+        healthText.text = currentHealth.ToString() + "/" + maxHealth.ToString();
     }
 
     public void ShowResultView()
     {
-        ResultView.SetActive(true);
+        resultView.SetActive(true);
         StartCoroutine(ButtonActiveDelay());
     }
 
     IEnumerator ButtonActiveDelay()
     {
         yield return new WaitForSeconds(1);
-        Btn_Claim.SetActive(true);
-        Btn_Reward.SetActive(true);
+        btn_Claim.SetActive(true);
+        btn_Reward.SetActive(true);
     }
 
     public void HideResultView()
     {
-        Btn_Claim.SetActive(false);
-        Btn_Reward.SetActive(false);
-        ResultView.SetActive(false);
+        btn_Claim.SetActive(false);
+        btn_Reward.SetActive(false);
+        resultView.SetActive(false);
     }
 
     public void SetResultTitle(bool isClear)
     {
         if (isClear)
         {
-            Text_ResultTitle.text = RESULT_CLEAR;
+            text_ResultTitle.text = RESULT_CLEAR;
             SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.GameClear);
         }
         else
         {
-            Text_ResultTitle.text = RESULT_FAILED;
+            text_ResultTitle.text = RESULT_FAILED;
             SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.GameOver);
         }
     }
 
     public void SetClearStage(int stage)
     {
-        Text_Stage.text = stage.ToString();
+        text_Stage.text = stage.ToString();
     }
 
     public void SetResultScore(int score)
     {
-        Text_ResultScore.text = score.ToString();
+        text_ResultScore.text = score.ToString();
     }
 
     public void SetRewardCoin(int coin)
     {
-        Text_ResultCoin.text = coin.ToString();
+        text_ResultCoin.text = coin.ToString();
     }
 
     public void SetRewardDiamond(int dia)
     {
-        Text_ResultDia.text = dia.ToString();
+        text_ResultDia.text = dia.ToString();
     }
 
     public void ComboActivation(int combo)
     {
-        Text_Combo.GetComponent<TextMeshProUGUI>().text = combo.ToString() + "COMBO!";
-        Text_Combo.GetComponent<Animator>().Play("ComboAnimation", 0, 0f);
+        text_Combo.GetComponent<TextMeshProUGUI>().text = combo.ToString() + "COMBO!";
+        text_Combo.GetComponent<Animator>().Play("ComboAnimation", 0, 0f);
     }
 
     public void ShowDamage(Vector2 position, long damage)
     {
         //Debug.Log(position);
-        DamageController.ShowDamageUI(position, damage);
+        damageController.ShowDamageUI(position, damage);
     }
 }

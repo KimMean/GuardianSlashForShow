@@ -11,6 +11,9 @@ public class BottomAlign : MonoBehaviour
         AlignToBottom();
     }
 
+    /// <summary>
+    /// 스크린 사이즈에 맞게 배경을 조정합니다.
+    /// </summary>
     void FitSpriteToScreen()
     {
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
@@ -31,6 +34,9 @@ public class BottomAlign : MonoBehaviour
         transform.localScale = newScale;
     }
 
+    /// <summary>
+    /// 화면의 월드 좌표에서 하단 중앙 지점을 계산합니다.
+    /// </summary>
     void AlignToBottom()
     {
         // 화면의 월드 좌표에서 하단 중앙 지점을 계산합니다.

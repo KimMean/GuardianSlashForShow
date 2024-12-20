@@ -47,6 +47,9 @@ public class WeaponBox : MonoBehaviour
         RefreshQuantity();
     }
 
+    /// <summary>
+    /// 보유한 무기의 수량을 갱신합니다.
+    /// </summary>
     public void RefreshQuantity()
     {
         //Debug.Log("RefreshQuantity");
@@ -72,14 +75,22 @@ public class WeaponBox : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 아이템 박스 클릭
+    /// </summary>
     public void OnWeaponBoxClicked()
     {
+        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
+
         if (_WeaponDetail.GetIsPossess())
         {
             _WeaponPanelController.ShowWeaponDetailPopup(ItemCode);
         }
     }
 
+    /// <summary>
+    /// 아이템을 추가합니다.
+    /// </summary>
     public void OnNewItemAcquired()
     {
         //Debug.Log("OnNewItemAcquired");

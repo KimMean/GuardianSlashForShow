@@ -19,6 +19,10 @@ public class NecklaceDetailPopup : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
+    /// <summary>
+    /// 아이템 정보를 갱신합니다.
+    /// </summary>
+    /// <param name="code">아이템 코드</param>
     public void SetNecklaceData(string code)
     {
         gameObject.SetActive(true);
@@ -32,24 +36,27 @@ public class NecklaceDetailPopup : MonoBehaviour
         Text_Hell.text = "블록 감속 확률 : + " + _NecklaceDetail.GetHell().ToString() + "%";
     }
 
-    /*
-     * 닫기 버튼 클릭
-     */
+    /// <summary>
+    /// 닫기 버튼 클릭
+    /// </summary>
     public void OnClosedButtonClick()
     {
-        gameObject.SetActive(false);
         SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.PopupClose);
+        gameObject.SetActive(false);
     }
 
-    /*
-     * 장착 버튼 클릭
-     */
+    /// <summary>
+    /// 장착 버튼 클릭
+    /// </summary>
     public void OnEquipmentButtonClick()
     {
+        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
+
         if (GameManager.Instance.GetEquipmentNecklace() == ItemCode)
             return;
 
+        if (!NetworkManager.Instance.GetIsConnected()) return;
+
         NetworkManager.Instance.ChangeEquipment(Packet.Products.Necklace, ItemCode);
-        SoundManager.Instance.PlayUISfx(SoundManager.UI_SFX_Clip.Click);
     }
 }

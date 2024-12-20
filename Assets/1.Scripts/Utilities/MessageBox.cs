@@ -6,25 +6,30 @@ using UnityEngine.UI;
 
 public class MessageBox : MonoBehaviour
 {
-    [SerializeField] Text MessageText;
+    [SerializeField] Text messageText;
 
     private void OnDisable()
     {
         gameObject.SetActive(false);
     }
 
-    public void ShowMessage(string message)
+    public void SetText(string message)
     {
-        MessageText.text = message;
+        messageText.text = message;
         gameObject.SetActive(true);
 
-        StopAllCoroutines();
-        StartCoroutine(HideMessage());
+        //StopAllCoroutines();
+        //StartCoroutine(HideMessage());
     }
 
-    IEnumerator HideMessage()
+    //IEnumerator HideMessage()
+    //{
+    //    yield return new WaitForSeconds(1);
+    //    gameObject.SetActive(false);
+    //}
+
+    public void HideMessageBox()
     {
-        yield return new WaitForSeconds(1);
         gameObject.SetActive(false);
     }
 }

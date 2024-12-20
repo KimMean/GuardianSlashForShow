@@ -22,7 +22,7 @@ public class IAPManager : MonoBehaviour, IStoreListener
     private IStoreController controller;
     private IExtensionProvider extensions;
 
-    private bool IsInitialized = false;
+    private bool isInitialized = false;
 
     private Dictionary<string, Action> pendingRequests;
 
@@ -49,6 +49,9 @@ public class IAPManager : MonoBehaviour, IStoreListener
 
     }
 
+    /// <summary>
+    /// UnityIAP를 초기화합니다.
+    /// </summary>
     private void InitUnityIAP()
     {
         Debug.Log("InitIAP");
@@ -68,33 +71,45 @@ public class IAPManager : MonoBehaviour, IStoreListener
         this.controller = controller;
         this.extensions = extensions;
 
-        IsInitialized = true;
+        isInitialized = true;
     }
     
-    // 초기화 실패
+    /// <summary>
+    /// 초기화 실패
+    /// </summary>
     public void OnInitializeFailed(InitializationFailureReason error)
     {
         Debug.LogError($"IAP Initialize Failed : {error}");
     }
 
-    // 초기화 실패
+    /// <summary>
+    /// 초기화 실패
+    /// </summary>
     public void OnInitializeFailed(InitializationFailureReason error, string message)
     {
         Debug.LogError($"IAP Initialize Failed : {error}, Message : {message}");
     }
 
-    // 구매 실패
+    /// <summary>
+    /// 구매 실패
+    /// </summary>
     public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
     {
         Debug.LogError($"IAP Purchase Failed, Purchase Failure Reason : {failureReason},\n Product ID : {product.definition.id}");
     }
 
-    // 구매 처리
-    //($"상품 ID: {product.definition.id}, 가격: {product.metadata.localizedPriceString}");
-    //($"상품 이름 : {product.metadata.localizedTitle}");
-    //($"상품 설명 : {product.metadata.localizedDescription}");
-    //($"상품 가격? : {product.definition.payout}");
-    //($"상품 ID? : {product.definition.storeSpecificId}, {product.definition.payout}");
+    /// <summary>
+    /// 구매 처리
+    /// </summary>
+    /// <param name="purchaseEvent"></param>
+    /// <returns></returns>
+    /// <remarks>
+    /// ($"상품 ID: {product.definition.id}, 가격: {product.metadata.localizedPriceString}");
+    /// ($"상품 이름 : {product.metadata.localizedTitle}");
+    /// ($"상품 설명 : {product.metadata.localizedDescription}");
+    /// ($"상품 가격? : {product.definition.payout}");
+    /// ($"상품 ID? : {product.definition.storeSpecificId}, {product.definition.payout}");
+    /// </remarks>
     public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs purchaseEvent)
     {
         Debug.Log($"IAP Process Purchase, Purchase Processing Result : {purchaseEvent.purchasedProduct},\n Product ID : {purchaseEvent.purchasedProduct.definition.id}");
@@ -113,18 +128,15 @@ public class IAPManager : MonoBehaviour, IStoreListener
         pendingRequests[transactionID] = () => ProcessPendingPurchase(product);
         Debug.Log("NetworkManager.Instance.ItemPurchase(Packet.Payment.Google, productID, transactionID, receipt);");
         NetworkManager.Instance.ItemPurchase(Packet.Payment.Google, productID, transactionID, receipt);
-        // 트랜잭션 ID를 기준으로 뭔가를 하는게 좋을 것 같은데
-        // 코루틴 또는 콜백
-        // 소켓 통신
-        // 서버에 영수증 로그 작성
-        // 영수증에 따른 아이템 지급(서버)
-        // 아이템 지급 실패시 결제는..?
-        // PurchaseProcessingResult.Pending일 경우
+       
 
         return PurchaseProcessingResult.Pending;
     }
 
-    // 영수증을 저장하고 아이템 지급까지 완료된경우 보류중인 결제를 완료처리합니다.
+    /// <summary>
+    /// 영수증을 저장하고 아이템 지급까지 완료된경우 보류중인 결제를 완료처리합니다.
+    /// </summary>
+    /// <param name="purchasedProduct"></param>
     public void ProcessPendingPurchase(Product purchasedProduct)
     {
         Debug.Log($"ProcessPendingPurchase, ProductID : {purchasedProduct.definition.id}");
@@ -141,6 +153,10 @@ public class IAPManager : MonoBehaviour, IStoreListener
         controller.ConfirmPendingPurchase(purchasedProduct);
     }
     
+    /// <summary>
+    /// 영수증이 정상적으로 저장된 경우 응답을 받습니다.
+    /// </summary>
+    /// <param name="transactionID"></param>
     public void ExcuteProcessPendingPurchase(string transactionID)
     {
         Debug.Log($"ExcuteProcessPendingPurchase TransactionID : {transactionID}");
@@ -152,9 +168,12 @@ public class IAPManager : MonoBehaviour, IStoreListener
         }
     }
 
+    /// <summary>
+    /// IAP 프로세스를 실행합니다.
+    /// </summary>
     public void Purchase(string productId)
     {
-        if (!IsInitialized)
+        if (!isInitialized)
         {
             return;
         }

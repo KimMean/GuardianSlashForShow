@@ -30,6 +30,12 @@ public class StagePanelController : MonoBehaviour, IBeginDragHandler, IEndDragHa
     {
         Stages = new GameObject[GameManager.Instance.GetMaxStageCount()];
         _ScrollRect = GetComponent<ScrollRect>();
+        //Debug.Log(Screen.dpi);
+        //Content.GetComponent<HorizontalLayoutGroup>().padding.left = Screen.safeArea.width / 2 - 150;
+        float halfWidth = FindObjectOfType<Canvas>().GetComponent<RectTransform>().rect.width / 2;
+        int blockCenter = (int)halfWidth - 100;
+        Content.GetComponent<HorizontalLayoutGroup>().padding.left = blockCenter;
+        Content.GetComponent<HorizontalLayoutGroup>().padding.right = blockCenter;
 
     }
 
@@ -52,7 +58,9 @@ public class StagePanelController : MonoBehaviour, IBeginDragHandler, IEndDragHa
     }
 
 
-    // Update is called once per frame
+    /// <summary>
+    /// 스테이지 목록을 드래그한 후에 정확한 스테이지를 가리킵니다.
+    /// </summary>
     void Update()
     {
         // 속도가 좀 줄어들었을 때
@@ -81,9 +89,11 @@ public class StagePanelController : MonoBehaviour, IBeginDragHandler, IEndDragHa
         }
     }
 
+    /// <summary>
+    /// 현재 선택될 확률이 높은 스테이지를 결정합니다.
+    /// </summary>
     public void OnScrollViewValueChange()
     {
-        // 코루틴으로 멈춤 확인?
         // 타겟을 지속적으로 변경
         TargetStage = (int)Mathf.Round(Mathf.Abs(Content.localPosition.x) / Padding) + 1;
         if (TargetStage > 80) TargetStage = 80;

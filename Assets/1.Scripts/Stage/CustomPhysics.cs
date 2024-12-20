@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class CustomPhysics : MonoBehaviour
 {
-    [SerializeField] bool Simulated = true;
+    [SerializeField] bool simulated = true;
 
-    [SerializeField] float Mass = 1.0f;
-    [SerializeField] float GravityScale = 1.0f;
-    [SerializeField] public Vector2 Velocity = Vector2.zero;
+    [SerializeField] float mass = 1.0f;
+    [SerializeField] float gravityScale = 1.0f;
+    [SerializeField] public Vector2 velocity = Vector2.zero;
 
-    [SerializeField] private bool IsGround = false;
-    float DecelerationFactor = 0.5f;
+    [SerializeField] private bool isGround = false;
+    float decelerationFactor = 0.5f;
 
     // Start is called before the first frame update
     void Start()
@@ -19,52 +19,71 @@ public class CustomPhysics : MonoBehaviour
 
     }
 
-    // Update is called once per frame
+    /// <summary>
+    /// 시뮬레이션이 활성화 된 경우 중력의 영향을 받습니다.
+    /// </summary>
     void Update()
     {
-        if (!Simulated) return;
-        if (IsGround) return;
+        if (!simulated) return;
+        if (isGround) return;
 
         // 중력 적용
-        Velocity.y += EnvironmentManager.Gravity * GravityScale * Time.deltaTime;
+        velocity.y += EnvironmentManager.Gravity * gravityScale * Time.deltaTime;
 
         // 위치 업데이트
-        transform.position += (Vector3)(Velocity * Time.deltaTime);
+        transform.position += (Vector3)(velocity * Time.deltaTime);
     }
 
+    /// <summary>
+    /// 중력의 크기를 조절합니다.
+    /// </summary>
+    /// <param name="scale">중력의 배율</param>
+    public void SetGravityScale(float scale)
+    {
+        gravityScale = scale;
+    }
+
+    /// <summary>
+    /// 지정한 방향으로 힘을 가합니다.
+    /// </summary>
+    /// <param name="force">Vector2 direction</param>
     public void AddForce(Vector2 force)
     {
-        Vector2 velocity = force / Mass;
-        Velocity += velocity;
+        Vector2 velocity = force / mass;
+        velocity += velocity;
     }
 
+    /// <summary>
+    /// 속도를 즉시 감소시킵니다.
+    /// 아이템의 영향을 받습니다.
+    /// </summary>
     public void ReduceVelocity()
     {
-        if (Velocity.y > 0) return;
+        if (velocity.y > 0) return;
         
         //Debug.Log("속도 감소 !");
-        Velocity.y *= DecelerationFactor;
+        velocity.y *= decelerationFactor;
     }
 
-    public void SetIsGround(bool isGround)
+    public void SetIsGround(bool ground)
     {
-        IsGround = isGround;
-        if (IsGround)
-            Velocity = Vector2.zero;
+        isGround = ground;
+        if (isGround)
+            velocity = Vector2.zero;
     }
     public bool GetIsGround()
     {
-        return IsGround;
+        return isGround;
     }
 
-    public void SetSimulated(bool simulated)
+    public void SetSimulated(bool isSimulated)
     {
-        Simulated = simulated;
+        simulated = isSimulated;
     }
 
-    public void SetVelocity(Vector2 velocity)
+    public void SetVelocity(Vector2 value)
     {
-        Velocity = velocity;
+        velocity = value;
     }
 
 }

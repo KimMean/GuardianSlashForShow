@@ -32,17 +32,32 @@ public class PacketManager
         }
     }
 
+    /// <summary>
+    /// 패킷 명령에 따라 다르게 처리합니다.
+    /// </summary>
     public void OnReceivePacket(ArraySegment<byte> buffer)
     {
         ushort cmd = BitConverter.ToUInt16(buffer.Array, buffer.Offset);
         int commandSize = sizeof(ushort);
 
         Command command = (Command)cmd;
-        Debug.Log($"Command : {command}");
+        if(command != Command.Heartbeat)
+            Debug.Log($"Command : {command}");
 
         switch (command)
         {
             case Command.NONE: break;
+            case Command.Heartbeat:
+                {
+                    NetworkManager.Instance.Heartbeat();
+                    break;
+                }
+            case Command.Information:
+                {
+                    InformationPacket infoPacket = new InformationPacket();
+                    infoPacket.ReceiveInformationData(new ArraySegment<byte>(buffer.Array, buffer.Offset + commandSize, buffer.Count - commandSize));
+                    break;
+                }
             case Command.GuestSignUP:
                 {
                     LoginPacket loginPacket = new LoginPacket();
@@ -124,7 +139,7 @@ public class PacketManager
                     WeaponPacket weaponPacket = new WeaponPacket();
                     bool result = weaponPacket.ReceiveUserWeaponEnhancementData(new ArraySegment<byte>(buffer.Array, buffer.Offset + commandSize, buffer.Count - commandSize));
 
-                    RequestEvent[command].Invoke(result);
+                    //RequestEvent[command].Invoke(result);
                     break;
                 }
             case Command.Necklace:
@@ -173,7 +188,7 @@ public class PacketManager
                     EquipmentPacket equipmentPacket = new EquipmentPacket();
                     bool result = equipmentPacket.ReceiveChangeEquipmentDataResponse(new ArraySegment<byte>(buffer.Array, buffer.Offset + commandSize, buffer.Count - commandSize));
 
-                    RequestEvent[command].Invoke(result);
+                    //RequestEvent[command].Invoke(result);
                     break;
                 }
             case Command.EndGame:
@@ -181,7 +196,7 @@ public class PacketManager
                     StagePacket stagePacket = new StagePacket();
                     bool result = stagePacket.ReceiveStageResultResponse(new ArraySegment<byte>(buffer.Array, buffer.Offset + commandSize, buffer.Count - commandSize));
 
-                    RequestEvent[command].Invoke(result);
+                    //RequestEvent[command].Invoke(result);
                     break;
                 }
             case Command.Purchase:
@@ -189,7 +204,7 @@ public class PacketManager
                     PurchasePacket purchasePacket = new PurchasePacket();
                     bool result = purchasePacket.ReceivePurchaseResponse(new ArraySegment<byte>(buffer.Array, buffer.Offset + commandSize, buffer.Count - commandSize));
 
-                    RequestEvent[command].Invoke(result);
+                    //RequestEvent[command].Invoke(result);
                     break;
                 }
             case Command.Product:

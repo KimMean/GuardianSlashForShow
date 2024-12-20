@@ -12,18 +12,18 @@ public class BlockController : MonoBehaviour
 
     SpriteRenderer _Sprite;
 
-    [SerializeField] GameObject BlockShield;
+    [SerializeField] GameObject blockShield;
 
-    int BlockLevel = 0;
-    int ShieldLevel = 0;
-    int ShieldType = 0;
-    int ShieldStrength = 0;
+    int blockLevel = 0;
+    int shieldLevel = 0;
+    int shieldType = 0;
+    int shieldStrength = 0;
 
-    long MaxHealth = 0;
-    long CurHealth = 0;
+    long maxHealth = 0;
+    long curHealth = 0;
     
-    long MaxShield = 0;
-    long CurShield = 0;
+    long maxShield = 0;
+    long curShield = 0;
 
     DynamicParticleManager dynamicParticleManager;
 
@@ -35,89 +35,98 @@ public class BlockController : MonoBehaviour
 
     private void OnEnable()
     {
-        CurHealth = MaxHealth;
-        CurShield = MaxShield;
+        curHealth = maxHealth;
+        curShield = maxShield;
     }
 
 
     public long GetBlockCurrentHealthPoint()
     {
-        return CurHealth;
+        return curHealth;
     }
     public long GetBlockMaxHealthPoint()
     {
-        return MaxHealth;
+        return maxHealth;
     }
 
     public long GetBlockTotalMaxHealth()
     {
-        return MaxHealth + MaxShield;
+        return maxHealth + maxShield;
     }
 
     public long GetBlockTotalCurrentHealth()
     {
-        return CurHealth + CurShield;
+        return curHealth + curShield;
     }
-    public void SetBlockMaxHealthPoint(long maxHealth)
+    public void SetBlockMaxHealthPoint(long health)
     {
-        MaxHealth = maxHealth;
+        maxHealth = health;
     }
+    /// <summary>
+    /// 블록 체력을 설정합니다.
+    /// 레벨에 따라 피보나치 수열 값을 반환합니다.
+    /// </summary>
+    /// <param name="level">1~80</param>
     public void SetBlockHealthLevel(int level)
     {
-        BlockLevel = level;
-        MaxHealth = FibonacciDataManager.Instance.GetFibonacciData(BlockLevel-1);
-        _Sprite.sprite = StageManager.Instance.GetBlockSprite(BlockLevel);
-        CurHealth = MaxHealth;
+        blockLevel = level;
+        maxHealth = FibonacciDataManager.Instance.GetFibonacciData(blockLevel-1);
+        _Sprite.sprite = StageManager.Instance.GetBlockSprite(blockLevel);
+        curHealth = maxHealth;
     }
 
+    /// <summary>
+    /// 블록 방어막 레벨을 설정하고 쉴드 체력을 설정합니다.
+    /// </summary>
+    /// <param name="level">0~9</param>
     public void SetBlockShieldLevel(int level)
     {
-        ShieldLevel = level;
+        shieldLevel = level;
+        // 레벨이 0인 경우 쉴드가 없습니다.
         if (level == 0)
         {
-            MaxShield = 0;
-            ShieldType = 0;
-            ShieldStrength = 0;
-            BlockShield.SetActive(false);
+            maxShield = 0;
+            shieldType = 0;
+            shieldStrength = 0;
+            blockShield.SetActive(false);
             return;
         }
 
         // 쉴드 사용
-        ShieldType = (level - 1) / 3 + 1; // 1, 2, 3
-        ShieldStrength = (level - 1) % 3 + 1; // 1, 2, 3
-        //MaxShield = FibonacciDataManager.Instance.GetFibonacciData(BlockLevel-1) * ShieldType * ShieldStrength;
-        MaxShield = FibonacciDataManager.Instance.GetFibonacciData(BlockLevel-1) * (level - 1);
+        shieldType = (level - 1) / 3 + 1; // 1, 2, 3
+        shieldStrength = (level - 1) % 3 + 1; // 1, 2, 3
+        maxShield = FibonacciDataManager.Instance.GetFibonacciData(blockLevel-1) * (shieldLevel - 1);
 
-        //Debug.Log($"ShieldLevel : {ShieldLevel}, ShieldType : {ShieldType}, ShieldStrength : {ShieldStrength}");
-        BlockShield.GetComponent<SpriteRenderer>().sprite = StageManager.Instance.GetShieldSprite(ShieldLevel - 1);
-        BlockShield.SetActive(true);
-        // health *= hard;
+        blockShield.GetComponent<SpriteRenderer>().sprite = StageManager.Instance.GetShieldSprite(shieldLevel - 1);
+        blockShield.SetActive(true);
     }
+
+    /// <summary>
+    /// 캐릭터의 공격으로 인해 피해를 받습니다.
+    /// </summary>
+    /// <param name="damage"></param>
     public void ApplyDamage(long damage)
     {
-        //Debug.Log(transform.position);
+        // 스코어는 피해량을 기준으로 설정됩니다.
         float scorePercentage = 0;
         if (damage > GetBlockTotalCurrentHealth())
             scorePercentage = (float)((double)GetBlockTotalCurrentHealth() / GetBlockTotalMaxHealth());
         else
             scorePercentage = (float)((double)damage / GetBlockTotalMaxHealth());
 
-        //Debug.Log($"ScorePercent : {scorePercentage}");
 
-        // 1~BlockLevel까지 더한 수
-        int baseScore = (BlockLevel) * (BlockLevel + 1) / 2;
+        int baseScore = (blockLevel) * (blockLevel + 1) / 2;
         int score = (int)(baseScore * scorePercentage * 100);
-        //Debug.Log($"BaseScore : {baseScore}, Score : {score}");
         StageManager.Instance.ScoreUp(score);
 
-        // 데미지 계산 전 블록의 hit사운드
-        if(CurShield <= 0)
+        // 방어막에 따라 사운드를 달리합니다.
+        if(curShield <= 0)
         {
             SoundManager.Instance.PlaySfx(SoundManager.SFX_Clip.Block);
         }
         else
         {
-            switch(ShieldType)
+            switch(shieldType)
             {
                 case 1:
                     SoundManager.Instance.PlaySfx(SoundManager.SFX_Clip.Leaf);
@@ -131,42 +140,27 @@ public class BlockController : MonoBehaviour
             }
         }
 
-        CurShield -= damage;
-
-        if(CurShield <= 0)
+        // 쉴드의 체력을 먼저 깍은 후 본 체력을 깍습니다.
+        curShield -= damage;
+        if(curShield <= 0)
         {
-            CurHealth += CurShield;
-            CurShield = 0;
-            BlockShield.SetActive(false);
+            curHealth += curShield;
+            curShield = 0;
+            blockShield.SetActive(false);
             SoundManager.Instance.PlaySfx(SoundManager.SFX_Clip.Block);
         }
         else
         {
-            // 0.9 / 1 = 0
-            // 2 / 3 = 0.8
-            // 3 / 3 = 1
-            // 4 / 3 = 1.2
-            // 7 / 3 = 2.2
-            // 8.9 / 3 = 2.9
-            // 방어막 강도 계산
-            //int strength = (int)(CurShield / (MaxShield / ShieldStrength));
-
-            // 정확히 나눠떨어질 경우, 강도를 한 단계 낮춤
-            //if (CurShield % (float)(MaxShield / ShieldStrength) == 0) 
-            //    strength -= 1;
-
-            int strength = CalculateShieldStrength(CurShield, MaxShield, ShieldStrength);
-            // 방어막 타입 계산
-            //int type = 3 * (ShieldType - 1) + strength;
+            // 방어막 이미지를 교체합니다.
+            int strength = CalculateShieldStrength(curShield, maxShield, shieldStrength);
             int type = CalculateShieldType(strength);
-            //Debug.Log($"CurShield : {CurShield}, (MaxShield / ShieldStrength) : {(MaxShield / ShieldStrength)}");
-            //Debug.Log($"Strength : {strength}, Type : {type}, ShieldType : {ShieldType}");
-            BlockShield.GetComponent<SpriteRenderer>().sprite = StageManager.Instance.GetShieldSprite(type);
+            blockShield.GetComponent<SpriteRenderer>().sprite = StageManager.Instance.GetShieldSprite(type);
         }
 
-        if (CurHealth <= 0)
+        // 블록의 체력이 0 이하인 경우 파괴합니다.
+        if (curHealth <= 0)
         {
-            CurHealth = 0;
+            curHealth = 0;
 
             CustomPhysics parentPhysics = transform.parent.GetComponent<CustomPhysics>();
             parentPhysics.SetIsGround(false);
@@ -176,14 +170,19 @@ public class BlockController : MonoBehaviour
             StageManager.Instance.OnDestroyBlock();
             dynamicParticleManager.PlayParticle(transform.position, GetComponent<SpriteRenderer>().sprite.texture);
 
-
             return;
         }
         UIManager.Instance.SetBlockHealth(GetBlockTotalCurrentHealth(), GetBlockTotalMaxHealth());
         
     }
 
-    // 방어막 강도 계산
+    /// <summary>
+    /// 방어막 강도를 계산합니다.
+    /// </summary>
+    /// <param name="currentShield">현재 블록 방어막</param>
+    /// <param name="maxShield">최대 방어막</param>
+    /// <param name="shieldStrengthSegments">방어막의 종류 (나뭇잎, 얼음, 돌)</param>
+    /// <returns></returns>
     int CalculateShieldStrength(float currentShield, float maxShield, int shieldStrengthSegments)
     {
         // 강도
@@ -196,12 +195,20 @@ public class BlockController : MonoBehaviour
         return Mathf.Max(0, strength); // 강도는 0 이상
     }
 
-    // 방어막 타입 계산
+    /// <summary>
+    /// 방어막 타입을 확인합니다.
+    /// </summary>
+    /// <param name="shieldStrength">방어막 종류 (나뭇잎, 얼음, 돌)</param>
+    /// <returns></returns>
     int CalculateShieldType(int shieldStrength)
     {
-        return 3 * (ShieldType - 1) + shieldStrength;
+        return 3 * (shieldType - 1) + shieldStrength;
     }
 
+    /// <summary>
+    /// 블록이 지면에 닿았는지 확인합니다.
+    /// </summary>
+    /// <param name="collision"></param>
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag.Equals("GroundTile"))
@@ -223,6 +230,10 @@ public class BlockController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 블록이 캐릭터와 겹친경우 캐릭터를 밀어냅니다.
+    /// </summary>
+    /// <param name="collision"></param>
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.tag.Equals("Player"))
@@ -236,10 +247,14 @@ public class BlockController : MonoBehaviour
             position.y -= overlapY;
             collision.transform.position = position;
 
-            otherPhysics.Velocity = transform.parent.GetComponent<CustomPhysics>().Velocity;
+            otherPhysics.velocity = transform.parent.GetComponent<CustomPhysics>().velocity;
         }
     }
 
+    /// <summary>
+    /// 지면에서 벗어난 경우 블록의 시뮬레이션을 킵니다.
+    /// </summary>
+    /// <param name="collision"></param>
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.tag.Equals("GroundTile"))

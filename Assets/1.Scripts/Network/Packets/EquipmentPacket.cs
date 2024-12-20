@@ -7,6 +7,11 @@ using static Packet;
 
 public class EquipmentPacket
 {
+    /// <summary>
+    /// 장착한 아이템 정보를 요청합니다.
+    /// 패킷 크기 / 명령 / 토큰 사이즈 / 토큰
+    /// </summary>
+    /// <param name="token">토큰</param>
     public static ArraySegment<byte> GetUserEquipmentDataRequest(string token)
     {
         ArraySegment<byte> openSegment = SendBufferHelper.Open(1024);
@@ -29,7 +34,10 @@ public class EquipmentPacket
 
         return SendBufferHelper.Close(count);
     }
-
+    /// <summary>
+    /// 장착한 아이템 정보를 받습니다.
+    /// 반환 결과 / 무기 코드 사이즈 / 무기 코드 / 목걸이 코드 사이즈 / 목걸이 코드 / 반지 코드 사이즈 / 반지 코드
+    /// </summary>
     public bool ReceiveUserEquipmentDataResponse(ArraySegment<byte> buffer)
     {
         Debug.Log("EquipmentData 받는 중");
@@ -71,6 +79,14 @@ public class EquipmentPacket
         return true;
     }
 
+    /// <summary>
+    /// 장착한 아이템의 변경을 요청합니다.
+    /// 패킷 크기 / 명령 / 토큰 사이즈 / 토큰 / 아이템 종류 / 아이템 코드 사이즈 / 아이템 코드
+    /// </summary>
+    /// <param name="token">토큰</param>
+    /// <param name="product">무기, 목걸이, 반지</param>
+    /// <param name="itemCode">아이템 코드</param>
+    /// <returns></returns>
     public static ArraySegment<byte> ChangeEquipmentRequest(string token, Products product, string itemCode)
     {
         ArraySegment<byte> openSegment = SendBufferHelper.Open(1024);
@@ -107,6 +123,10 @@ public class EquipmentPacket
         return SendBufferHelper.Close(count);
     }
 
+    /// <summary>
+    /// 변경한 아이템 정보를 받습니다.
+    /// 반환 결과 / 아이템 종류 / 코드 사이즈 / 아이템 코드
+    /// </summary>
     public bool ReceiveChangeEquipmentDataResponse(ArraySegment<byte> buffer)
     {
         Debug.Log("EquipmentData 받는 중");
@@ -149,11 +169,6 @@ public class EquipmentPacket
                 break;
         }
         
-        //GameManager.Instance.SetEquipmentWeapon(weaponCode);
-        //GameManager.Instance.SetEquipmentNecklaceCode(necklaceCode);
-        //GameManager.Instance.SetEquipmentRingCode(ringCode);
-
-        ///Debug.Log($"Equipments, Weapon : {weaponCode}, Necklace : {necklaceCode}, Ring : {ringCode}");
 
         return true;
     }

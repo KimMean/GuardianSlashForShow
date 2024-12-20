@@ -107,7 +107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98b97b7ab8870eb45a2c20a0f0c52b4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StickMan: {fileID: 7841114138012265823}
+  stickMan: {fileID: 7841114138012265823}
 --- !u!61 &8749637600938729194
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1714,10 +1714,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5cc13d1e17f33540bda6ee5a262e200, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  JumpPower: 10
-  AttackPos: {fileID: 2568565795413463455}
-  AttackDelay: 0.1
-  ShieldPos: {fileID: 1689253343986671987}
+  attackPos: {fileID: 2568565795413463455}
+  shieldPos: {fileID: 1689253343986671987}
   Weapon_SpriteRenderer: {fileID: 1474784837078288119}
 --- !u!114 &2051300609007452953
 MonoBehaviour:
@@ -1731,11 +1729,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b87c3593883912c4a90a66aca15f4854, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Simulated: 1
-  Mass: 1
-  GravityScale: 1
-  Velocity: {x: 0, y: 0}
-  IsGround: 0
+  simulated: 1
+  mass: 1
+  gravityScale: 1
+  velocity: {x: 0, y: 0}
+  isGround: 0
 --- !u!61 &8884596188051821654
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -5,31 +5,30 @@ using UnityEngine.UI;
 
 public class CharacterController : MonoBehaviour
 {
-    ParticleManager AttackParticle;
-    ParticleManager JumpParticle;
-    ParticleManager SlashParticleLR;
-    ParticleManager SlashParticleRL;
+    ParticleManager attackParticle;
+    ParticleManager jumpParticle;
+    ParticleManager slashParticleLR;
+    ParticleManager slashParticleRL;
     CustomPhysics _Physics;
     Animator _Animator;
 
-    [SerializeField] private float JumpPower = 10.0f;
-    float ExtraJumpPower = 0;
+    private float jumpPower = 10.0f;
+    float extraJumpPower = 0;
 
-    [SerializeField] private GameObject AttackPos;
-    [SerializeField] private float AttackDelay = 0.1f;
+    [SerializeField] private GameObject attackPos;
+    private float attackDelay = 0.1f;
     //[SerializeField] private float AttackPower = 0.1f;
 
-    [SerializeField] private GameObject ShieldPos;
+    [SerializeField] private GameObject shieldPos;
 
     [SerializeField] SpriteRenderer Weapon_SpriteRenderer;
 
     Vector2 groundPosition;
 
+    private bool isAttacking = false;
     bool isAttackR = false;
+    private bool isDefending = false;
 
-    
-
-    private bool CanAttack = true;
 
     private void Awake()
     {
@@ -39,40 +38,43 @@ public class CharacterController : MonoBehaviour
         string weaponCode = GameManager.Instance.GetEquipmentWeapon();
         Weapon_SpriteRenderer.sprite = WeaponManager.Instance.GetWeaponData(weaponCode).GetWeaponSprite();
 
-        GameObject atkParticle = GameObject.Find("AttackParticle");
-        if (atkParticle != null)
+        GameObject _atkParticle = GameObject.Find("AttackParticle");
+        if (_atkParticle != null)
         {
-            AttackParticle = atkParticle.GetComponent<ParticleManager>();
+            attackParticle = _atkParticle.GetComponent<ParticleManager>();
         }
-        GameObject jumpParticle = GameObject.Find("JumpParticle");
-        if (jumpParticle != null)
+        GameObject _jumpParticle = GameObject.Find("JumpParticle");
+        if (_jumpParticle != null)
         {
-            JumpParticle = jumpParticle.GetComponent<ParticleManager>();
+            jumpParticle = _jumpParticle.GetComponent<ParticleManager>();
         }
         GameObject slashParticleA = GameObject.Find("SlashLtoR");
         if (slashParticleA != null)
         {
-            SlashParticleLR = slashParticleA.GetComponent<ParticleManager>();
+            slashParticleLR = slashParticleA.GetComponent<ParticleManager>();
         }
         GameObject slashParticleB = GameObject.Find("SlashRtoL");
         if (slashParticleB != null)
         {
-            SlashParticleRL = slashParticleB.GetComponent<ParticleManager>();
+            slashParticleRL = slashParticleB.GetComponent<ParticleManager>();
         }
 
         string ringCode = GameManager.Instance.GetEquipmentRing();
         if (ringCode == "R000")
-            ExtraJumpPower = 0;
+            extraJumpPower = 0;
         else
         {
             int ratio = RingManager.Instance.GetRingData(ringCode).GetJump();
-            ExtraJumpPower = JumpPower * (ratio / 100f);
+            extraJumpPower = jumpPower * (ratio / 100f);
         }
         //Debug.Log($"JumpPower : {JumpPower}, ExtraJump : {ExtraJumpPower}");
-        JumpPower += ExtraJumpPower;
+        jumpPower += extraJumpPower;
     }
 
-
+    /// <summary>
+    /// 점프 후 지면에 착지했는지 검사합니다.
+    /// </summary>
+    /// <param name="collision"></param>
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag.Equals("GroundTile"))
@@ -98,59 +100,88 @@ public class CharacterController : MonoBehaviour
             }
 
             SoundManager.Instance.PlaySfx(SoundManager.SFX_Clip.Landing);
-            JumpParticle.ParticleActivation(groundPosition);
+            jumpParticle.ParticleActivation(groundPosition);
         }
 
     }
 
+    /// <summary>
+    /// OnTriggerEnter2D와 같은 기능을 하지만
+    /// 블록이 떨어질 때 점프를 연속적으로 하면 Enter기능이 제 역할을 못하여 추가했습니다.
+    /// </summary>
+    /// <param name="collision"></param>
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.tag.Equals("GroundTile"))
+        {
+            if (_Physics.GetIsGround()) return;
+            _Physics.SetIsGround(true);
+            _Animator.SetBool("IsGround", true);
+
+            transform.position = groundPosition;
+        }
+    }
+
+    /// <summary>
+    /// 캐릭터 점프 여부를 확인합니다.
+    /// </summary>
+    /// <param name="collision"></param>
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.tag.Equals("GroundTile"))
         {
+            _Physics.SetIsGround(false);
             //if (!_Physics.GetIsGround()) return;
             //_Physics.SetIsGround(false);
             //_Animator.SetBool("IsGround", false);
 
             SoundManager.Instance.PlaySfx(SoundManager.SFX_Clip.Jump);
-            JumpParticle.ParticleActivation(groundPosition);
+            jumpParticle.ParticleActivation(groundPosition);
         }
     }
 
-
+    /// <summary>
+    /// 캐릭터 공격
+    /// </summary>
     public void Attack()
     {
-        if (!CanAttack) return;
+        if (isAttacking) return;
+        if (isDefending) return;
 
         _Animator.SetTrigger("Attack");
-        CanAttack = false;
-        StartCoroutine(AttackDelayCoroutine());
+        isAttacking = true;
+        //StartCoroutine(AttackDelayCoroutine());
         //Vector2 pos = this.transform.position;
         //pos.y += 10.0f;
-        AttackPos.SetActive(true);
-        AttackParticle.ParticleActivation(AttackPos.transform.position);
+        attackPos.SetActive(true);
+        attackParticle.ParticleActivation(attackPos.transform.position);
 
         if (isAttackR)
         {
             SoundManager.Instance.PlaySfx(SoundManager.SFX_Clip.AttackA);
-            SlashParticleRL.ParticleActivation(GetComponent<Collider2D>().bounds.center);
+            slashParticleRL.ParticleActivation(GetComponent<Collider2D>().bounds.center);
         }
         else
         {
             SoundManager.Instance.PlaySfx(SoundManager.SFX_Clip.AttackB);
-            SlashParticleLR.ParticleActivation(GetComponent<Collider2D>().bounds.center);
+            slashParticleLR.ParticleActivation(GetComponent<Collider2D>().bounds.center);
         }
 
         isAttackR = !isAttackR;
         //Debug.Log("Attack");
     }
 
-    private IEnumerator AttackDelayCoroutine()
+    /// <summary>
+    /// 공격 애니메이션이 끝난경우 프레임 이벤트로 호출됩니다.
+    /// </summary>
+    public void EndAttack()
     {
-        yield return new WaitForSeconds(AttackDelay);
-        CanAttack = true;
+        isAttacking = false;
     }
 
-
+    /// <summary>
+    /// 캐릭터 점프
+    /// </summary>
     public void Jump()
     {
         if (!_Physics.GetIsGround()) return;
@@ -160,28 +191,38 @@ public class CharacterController : MonoBehaviour
 
         //SoundManager.Instance.PlaySfx(SoundManager.SFX_Clip.Jump);
         //Debug.Log("Jump");
-        _Physics.Velocity = Vector2.up * JumpPower;
+        _Physics.velocity = Vector2.up * jumpPower;
     }
 
+    /// <summary>
+    /// 캐릭터 방어
+    /// </summary>
     public void Defend()
     {
+        if (isAttacking) return;
+        if (isDefending) return;
+        
+        isDefending = true;
         //Debug.Log("Defend");
 
-        if (!ShieldPos.activeSelf)
-            ShieldPos.SetActive(true);
+        //if (!shieldPos.activeSelf)
+        shieldPos.SetActive(true);
 
         _Animator.SetTrigger("Defense");
     }
-    public void BasicSkill() 
-    {
-        Debug.Log("BasicSkill");
-    }
 
-    public void SpacialSkill()
+    /// <summary>
+    /// 방어 애니메이션 마지막 프레임에서 호출됩니다.
+    /// </summary>
+    public void EndDefend()
     {
-        Debug.Log("SpacialSkill");
+        isDefending = false;
     }
-
+    
+    /// <summary>
+    /// 블록이 바로 위에있는 경우를 검사합니다.
+    /// </summary>
+    /// <returns></returns>
     private bool BlockOverlapCheck()
     {
         Bounds bounds = GetComponent<BoxCollider2D>().bounds;

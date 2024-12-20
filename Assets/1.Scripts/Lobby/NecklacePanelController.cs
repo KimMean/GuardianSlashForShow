@@ -45,6 +45,9 @@ public class NecklacePanelController : MonoBehaviour
         _NecklaceDetailPopup.SetNecklaceData(itemCode);
     }
 
+    /// <summary>
+    /// 새로운 목걸이를 장착한 경우 정보를 갱신합니다.
+    /// </summary>
     void UpdateEquipmentView()
     {
         equipItemCode = GameManager.Instance.GetEquipmentNecklace();

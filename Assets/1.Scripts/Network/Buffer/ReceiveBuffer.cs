@@ -22,6 +22,9 @@ public class ReceiveBuffer
         RecvBuffer = new ArraySegment<byte>(new byte[bufferSize], 0, bufferSize);
     }
 
+    /// <summary>
+    /// 재사용하기 위해 ReadPosition과 WritePosition을 정리합니다.
+    /// </summary>
     public void Clean()
     {
         int dataSize = DataSize;

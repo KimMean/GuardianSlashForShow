@@ -46,6 +46,9 @@ public class RingPanelController : MonoBehaviour
         _RingDetailPopup.SetRingData(itemCode);
     }
 
+    /// <summary>
+    /// 새로운 아이템을 장착한 경우 정보를 갱신합니다.
+    /// </summary>
     void UpdateEquipmentView()
     {
         equipItemCode = GameManager.Instance.GetEquipmentRing();

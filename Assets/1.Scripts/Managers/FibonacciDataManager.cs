@@ -12,48 +12,35 @@ public class FibonacciDataManager : MonoBehaviour
 
     [SerializeField] TextAsset csvFile;
 
-    Dictionary<int, long> FibonacciData;
+    Dictionary<int, long> fibonacciData;
 
     private void Awake()
     {
         instance = this;
         DontDestroyOnLoad(gameObject);
 
-        FibonacciData = new Dictionary<int, long>();
+        fibonacciData = new Dictionary<int, long>();
         DataGenerator();
         //LoadCSV();
     }
 
+    /// <summary>
+    /// 피보나치 수열을 생성합니다.
+    /// </summary>
     private void DataGenerator()
     {
-        FibonacciData[0] = 1;
-        FibonacciData[1] = 2;
+        fibonacciData[0] = 1;
+        fibonacciData[1] = 2;
         for(int i = 2; i <= 90; i++)
         {
-            FibonacciData.Add(i, FibonacciData[i - 2] + FibonacciData[i - 1]);
+            fibonacciData.Add(i, fibonacciData[i - 2] + fibonacciData[i - 1]);
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        //StringBuilder sb = new StringBuilder();
-        //foreach(var kvp in FibonacciData)
-        //{
-        //    sb.Append($"Key : {kvp.Key}, Value : {kvp.Value} \n");
-        //}
-        //Debug.Log( sb.ToString() );
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public long GetFibonacciData(int fibonacciIndex)
     {
-        return FibonacciData[fibonacciIndex];
+        return fibonacciData[fibonacciIndex];
     }
 
     void LoadCSV()
@@ -73,7 +60,7 @@ public class FibonacciDataManager : MonoBehaviour
             var values = line.Split(',');
             int index = int.Parse(values[0]);
             long value = long.Parse(values[1]);
-            FibonacciData.Add(index, value);
+            fibonacciData.Add(index, value);
         }
     }
 }

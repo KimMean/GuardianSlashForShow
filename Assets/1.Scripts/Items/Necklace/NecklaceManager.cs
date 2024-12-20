@@ -47,6 +47,9 @@ public class NecklaceManager
     {
         return new List<string>(Necklaces.Keys);
     }
+    /// <summary>
+    /// 목걸이 전체 이름을 반환합니다.
+    /// </summary>
     public List<string> GetNecklaceNameList()
     {
         List<string> sortedNames = Necklaces
@@ -56,6 +59,9 @@ public class NecklaceManager
         return sortedNames;
     }
 
+    /// <summary>
+    /// 보유한 아이템을 추가합니다.
+    /// </summary>
     public void AddItems(List<string> itemCodes)
     {
         foreach (string itemCode in itemCodes)

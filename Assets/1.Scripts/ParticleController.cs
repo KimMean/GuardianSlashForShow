@@ -5,14 +5,14 @@ using UnityEngine;
 
 public class ParticleController : MonoBehaviour
 {
-    private ParticleSystem _particleSystem;
+    private ParticleSystem particleSystem;
     private float duration;
 
 
     private void Awake()
     {
-        _particleSystem = GetComponent<ParticleSystem>();
-        duration = _particleSystem.main.duration + _particleSystem.main.startLifetime.constant;
+        particleSystem = GetComponent<ParticleSystem>();
+        duration = particleSystem.main.duration + particleSystem.main.startLifetime.constant;
     }
 
     private void OnEnable()
@@ -20,20 +20,14 @@ public class ParticleController : MonoBehaviour
         StartCoroutine(ParticleTurnOffDelay());
     }
 
+    /// <summary>
+    /// 파티클을 비활성 상태로 만듭니다.
+    /// </summary>
+    /// <returns>Delay by duration</returns>
     IEnumerator ParticleTurnOffDelay()
     {
         yield return new WaitForSeconds(duration);
         gameObject.SetActive(false);
     }
 
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

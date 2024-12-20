@@ -147,7 +147,10 @@ public class SoundManager : MonoBehaviour
         if (bgmMute)
             bgmPlayer.clip = bgmClips[(int)currentClip];
         else
+        {
+            StopAllCoroutines();
             StartCoroutine(FadeOutAndChange());
+        }
     }
 
     private IEnumerator FadeOutAndChange()
@@ -159,6 +162,7 @@ public class SoundManager : MonoBehaviour
             bgmPlayer.volume = Mathf.Lerp(startVolume, 0, t / fadeDuration);
             yield return null;
         }
+        bgmPlayer.volume = 0;
 
         // 새로운 클립으로 변경
         bgmPlayer.clip = bgmClips[(int)currentClip];
@@ -167,9 +171,10 @@ public class SoundManager : MonoBehaviour
         // 페이드 인
         for (float t = 0; t < fadeDuration; t += Time.deltaTime)
         {
-            bgmPlayer.volume = Mathf.Lerp(0, startVolume, t / fadeDuration);
+            bgmPlayer.volume = Mathf.Lerp(0, bgmVolume, t / fadeDuration);
             yield return null;
         }
+        bgmPlayer.volume = bgmVolume;
     }
 
     public void PlayBgm(bool isPlay)

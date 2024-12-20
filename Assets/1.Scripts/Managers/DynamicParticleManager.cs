@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 파티클을 풀링합니다.
+/// </summary>
 public class DynamicParticleManager : MonoBehaviour
 {
     [SerializeField] GameObject particlePrefab;
