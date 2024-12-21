@@ -15,26 +15,7 @@ public class InformationPacket
     /// <param name="platform">안드로이드</param>
     public static ArraySegment<byte> GetInformationData(string platform)
     {
-        ArraySegment<byte> openSegment = SendBufferHelper.Open(1024);
-
-        ushort count = sizeof(ushort);
-
-        BitConverter.GetBytes((ushort)Command.Information).CopyTo(openSegment.Array, openSegment.Offset + sizeof(ushort));
-        count += sizeof(ushort);
-
-        // 토큰
-        byte[] platformData = Encoding.UTF8.GetBytes(platform);
-        ushort platformSize = (ushort)platformData.Length;
-
-        BitConverter.GetBytes(platformSize).CopyTo(openSegment.Array, openSegment.Offset + count);
-        count += sizeof(ushort);
-
-        platformData.CopyTo(openSegment.Array, openSegment.Offset + count);
-        count += platformSize;
-
-        BitConverter.GetBytes(count).CopyTo(openSegment.Array, openSegment.Offset);
-
-        return SendBufferHelper.Close(count);
+                // 무작위 패킷 공격 방지를 위해 삭제합니다.
     }
     /// <summary>
     /// 앱 정보를 받습니다.
@@ -44,30 +25,6 @@ public class InformationPacket
     /// <returns></returns>
     public bool ReceiveInformationData(ArraySegment<byte> buffer)
     {
-        Debug.Log("ReceiveInformationData 받는 중");
-        
-        int parsingCount = 0;
-        ushort result = BitConverter.ToUInt16(buffer.Array, buffer.Offset);
-        parsingCount += sizeof(ushort);
-
-        if ((ResultCommand)result == ResultCommand.Failed)
-            return false;
-
-
-        // App Version
-        ushort versionSize = BitConverter.ToUInt16(buffer.Array, buffer.Offset + parsingCount);
-        parsingCount += sizeof(ushort);
-        string version = Encoding.UTF8.GetString(buffer.Array, buffer.Offset + parsingCount, versionSize);
-        parsingCount += versionSize;
-
-        // URL
-        ushort urlSize = BitConverter.ToUInt16(buffer.Array, buffer.Offset + parsingCount);
-        parsingCount += sizeof(ushort);
-        string url = Encoding.UTF8.GetString(buffer.Array, buffer.Offset + parsingCount, urlSize);
-        parsingCount += urlSize;
-
-        GameManager.Instance.SetAppInformation(version, url);
-
-        return true;
+                // 무작위 패킷 공격 방지를 위해 삭제합니다.
     }
 }

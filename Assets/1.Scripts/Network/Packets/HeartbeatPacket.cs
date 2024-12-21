@@ -14,15 +14,6 @@ public class HeartbeatPacket
     /// <returns></returns>
     public static ArraySegment<byte> GetHeartbeatPacket()
     {
-        ArraySegment<byte> openSegment = SendBufferHelper.Open(4096);
-        ushort count = sizeof(ushort);
-
-        BitConverter.GetBytes((ushort)Command.Heartbeat).CopyTo(openSegment.Array, openSegment.Offset + count);
-        count += sizeof(ushort);
-
-        // 총 사이즈 입력
-        BitConverter.GetBytes(count).CopyTo(openSegment.Array, openSegment.Offset);
-
-        return SendBufferHelper.Close(count);
+                // 무작위 패킷 공격 방지를 위해 삭제합니다.
     }
 }
